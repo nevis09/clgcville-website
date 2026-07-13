@@ -137,7 +137,7 @@ main > section + section::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 90px;
+  height: 45px;
   pointer-events: none;
   z-index: 0;
 }
@@ -161,12 +161,12 @@ main > section + section::before {
 /* cream → dark-green */
 .section-light + .section-dark::before {
   background: linear-gradient(to bottom, #ede8df, transparent);
-  height: 120px;
+  height: 60px;
 }
 /* cream → medium-green */
 .section-light + .section-primary::before {
   background: linear-gradient(to bottom, #ede8df, transparent);
-  height: 120px;
+  height: 60px;
 }
 /* any → overlay-cta (image bg) or overlay-cta → any */
 .section-dark + .overlay-cta::before,
