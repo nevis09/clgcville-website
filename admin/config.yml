@@ -3,10 +3,10 @@
 
 backend:
   name: github
-  repo: REPLACE_WITH_YOUR_GITHUB_USERNAME/clgcville-website
+  repo: nevis09/clgcville-website
   branch: main
   auth_type: pkce
-  app_id: REPLACE_WITH_YOUR_GITHUB_OAUTH_APP_CLIENT_ID
+  app_id: 0v23li6fVtdxmGawuxbg
 
 # Where uploaded images get stored in the repo
 media_folder: assets/images
