@@ -692,6 +692,36 @@ blockquote.pastor-quote {
   .btn-row { justify-content: center; }
 }
 
+/* ---------- Homepage Announcement Cards ---------- */
+.home-ann-card {
+  border-left: 3px solid var(--color-accent);
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+  background: rgba(0,0,0,0.15);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.home-ann-card:last-child { margin-bottom: 0; }
+.home-ann-date {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.home-ann-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--color-light);
+  margin-bottom: 6px;
+}
+.home-ann-body {
+  font-size: 0.95rem;
+  color: var(--text-on-dark);
+  opacity: 0.75;
+  line-height: 1.65;
+}
+
 /* ---------- Mission Statement Section ---------- */
 .mission-statement-section {
   background: var(--color-bg-dark);

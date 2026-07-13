@@ -216,6 +216,50 @@
     });
   }
 
+  /* ---------- Homepage announcements feed ---------- */
+  (function () {
+    var list = document.getElementById('home-ann-list');
+    if (!list) return;
+
+    function fmtDate(d) {
+      if (!d) return '';
+      try { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }); }
+      catch (e) { return d; }
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    fetch('/api/content?section=announcements')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var items = ((data && data.items) || []).slice()
+          .sort(function (a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; })
+          .slice(0, 3);
+
+        if (!items.length) {
+          list.innerHTML =
+            '<p style="text-align:center;opacity:0.6;padding:var(--space-md) 0;">No announcements at this time — check back soon.</p>';
+          return;
+        }
+
+        list.innerHTML = items.map(function (ann) {
+          var excerpt = (ann.body || '').replace(/\n/g, ' ').trim();
+          if (excerpt.length > 160) excerpt = excerpt.slice(0, 157) + '…';
+          return '<div class="home-ann-card">' +
+            '<div class="home-ann-date">' + esc(fmtDate(ann.date)) + '</div>' +
+            '<h3 class="home-ann-title">' + esc(ann.title || '') + '</h3>' +
+            (excerpt ? '<p class="home-ann-body">' + esc(excerpt) + '</p>' : '') +
+            '</div>';
+        }).join('');
+      })
+      .catch(function () {
+        list.innerHTML =
+          '<p style="text-align:center;opacity:0.5;padding:var(--space-md) 0;">Unable to load announcements right now.</p>';
+      });
+  }());
+
   /* ---------- Announcement banner ---------- */
   (function () {
     if (window.location.pathname.indexOf('/announcements') !== -1) return;
