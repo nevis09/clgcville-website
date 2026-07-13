@@ -705,69 +705,28 @@ blockquote.pastor-quote {
 }
 
 /* ---------- Homepage Announcement Cards ---------- */
-/* Featured (most recent upcoming) announcement */
-.home-ann-featured {
-  background: rgba(201,168,76,0.10);
-  border: 1px solid rgba(201,168,76,0.35);
-  border-left: 4px solid var(--color-accent);
-  border-radius: var(--radius);
-  padding: var(--space-md) var(--space-lg);
-  margin-bottom: var(--space-md);
-  position: relative;
-}
-.home-ann-featured .home-ann-badge {
-  display: inline-block;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--color-accent);
-  background: rgba(201,168,76,0.15);
-  border: 1px solid rgba(201,168,76,0.4);
-  border-radius: 20px;
-  padding: 2px 10px;
-  margin-bottom: var(--space-xs);
-}
-.home-ann-featured .home-ann-date {
-  font-size: 0.78rem;
-  margin-bottom: 8px;
-}
-.home-ann-featured .home-ann-title {
-  font-size: 1.55rem;
-  margin-bottom: 10px;
-}
-.home-ann-featured .home-ann-body {
-  font-size: 1rem;
-  opacity: 0.85;
-}
-
-/* Regular announcement cards */
+/* Homepage announcement cards */
 .home-ann-card {
-  border-left: 3px solid var(--color-accent);
-  padding: var(--space-sm) var(--space-md);
-  margin-bottom: var(--space-md);
-  background: rgba(0,0,0,0.15);
-  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
-.home-ann-card:last-child { margin-bottom: 0; }
+.home-ann-card:last-child { border-bottom: none; padding-bottom: 0; }
 .home-ann-date {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--color-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  color: var(--text-on-dark);
   margin-bottom: 6px;
 }
 .home-ann-title {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
-  color: var(--color-light);
-  margin-bottom: 6px;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: 8px;
+  line-height: 1.2;
 }
 .home-ann-body {
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--text-on-dark);
-  opacity: 0.75;
   line-height: 1.65;
 }
 
