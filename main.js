@@ -260,42 +260,6 @@
       });
   }());
 
-  /* ---------- Announcement banner ---------- */
-  (function () {
-    if (window.location.pathname.indexOf('/announcements') !== -1) return;
-    fetch('/api/content?section=announcements')
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
-        if (!data || !data.items || !data.items.length) return;
-        var sorted = data.items.slice().sort(function (a, b) {
-          return (b.date || '') > (a.date || '') ? 1 : -1;
-        });
-        var ann = sorted[0];
-        if (!ann || !ann.title) return;
-        var key = 'ann-dismissed-' + ann.title.slice(0, 60);
-        if (localStorage.getItem(key)) return;
-
-        var banner = document.createElement('div');
-        banner.className = 'announcement-banner';
-        banner.innerHTML =
-          '<div class="container">' +
-            '<i class="fa-solid fa-bullhorn"></i>' +
-            '<span class="ann-text">' + ann.title.replace(/[<>&"]/g, function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];}) + '</span>' +
-            '<a href="/announcements/index.html" class="ann-link">Read More</a>' +
-            '<button class="ann-close" aria-label="Dismiss announcement"><i class="fa-solid fa-xmark"></i></button>' +
-          '</div>';
-
-        var main = document.querySelector('main');
-        if (main) main.insertBefore(banner, main.firstChild);
-
-        banner.querySelector('.ann-close').addEventListener('click', function () {
-          localStorage.setItem(key, '1');
-          banner.remove();
-        });
-      })
-      .catch(function () {});
-  }());
-
   /* ---------- Calendar ---------- */
   var calGrid = document.querySelector('.calendar-grid');
   if (calGrid) {
