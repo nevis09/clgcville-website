@@ -29,7 +29,6 @@ collections:
         file: _data/settings.json
         fields:
           - { label: Church Name, name: church_name, widget: string, default: "Church Of The Living God" }
-          - { label: Tagline / Motto, name: tagline, widget: string }
           - { label: Phone Number, name: phone, widget: string }
           - { label: Email Address, name: email, widget: string, default: "info@clgcville.org" }
           - { label: Address, name: address, widget: string, default: "2130 Berkmar Drive, Charlottesville, VA 22901" }
@@ -52,7 +51,6 @@ collections:
         name: home
         file: _data/home.json
         fields:
-          - { label: Hero Tagline, name: hero_tagline, widget: string }
           - { label: Hero Background Image, name: hero_image, widget: image }
           - { label: Welcome Heading, name: welcome_heading, widget: string }
           - { label: Welcome Text, name: welcome_text, widget: text }
