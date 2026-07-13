@@ -127,9 +127,58 @@ section { padding: var(--space-xl) 0; position: relative; }
 }
 .section-light .accent-text { color: var(--color-accent-dark); }
 
-/* Depth shadow at every section boundary — makes sections layer instead of hard-cut */
-main > section + section {
-  box-shadow: inset 0 8px 40px rgba(0, 0, 0, 0.28);
+/* Lift section content above boundary gradients */
+section > .container { position: relative; z-index: 1; }
+
+/* ── Section color cross-fades ────────────────────────────────────────
+   Each ::before fades FROM the previous section's dominant color
+   TO transparent, blending the hard boundary between sections.       */
+main > section + section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 90px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* medium-green → dark-green */
+.section-primary + .section-dark::before {
+  background: linear-gradient(to bottom, #143527, transparent);
+}
+/* dark-green → medium-green */
+.section-dark + .section-primary::before {
+  background: linear-gradient(to bottom, #0c1e16, transparent);
+}
+/* medium-green → cream  */
+.section-primary + .section-light::before {
+  background: linear-gradient(to bottom, #143527, transparent);
+}
+/* dark-green → cream */
+.section-dark + .section-light::before {
+  background: linear-gradient(to bottom, #0c1e16, transparent);
+}
+/* cream → dark-green */
+.section-light + .section-dark::before {
+  background: linear-gradient(to bottom, #ede8df, transparent);
+  height: 120px;
+}
+/* cream → medium-green */
+.section-light + .section-primary::before {
+  background: linear-gradient(to bottom, #ede8df, transparent);
+  height: 120px;
+}
+/* any → overlay-cta (image bg) or overlay-cta → any */
+.section-dark + .overlay-cta::before,
+.section-primary + .overlay-cta::before,
+.overlay-cta + .section-primary::before,
+.overlay-cta + .section-dark::before {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.35), transparent);
+}
+/* service-strip → section */
+.service-strip + .section-primary::before,
+.service-strip + .section-dark::before {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent);
 }
 
 /* ---------- Buttons ---------- */
