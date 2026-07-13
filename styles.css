@@ -288,7 +288,7 @@ main > section + section::before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   opacity: 0;
   visibility: hidden;
   transform: translateX(100%);
@@ -322,7 +322,7 @@ main > section + section::before {
 .nav-close:hover { background: rgba(201,168,76,0.22); border-color: var(--color-accent); }
 .nav-close:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(201,168,76,0.4); }
 .nav-overlay ul { text-align: center; width: 100%; max-width: 420px; margin: 0 auto; }
-.nav-overlay > .container, .nav-list-wrap { width: 100%; }
+.nav-overlay > .container, .nav-list-wrap { width: 100%; padding-top: max(60px, 10vh); padding-bottom: var(--space-xl); }
 .nav-item { border-bottom: 1px solid rgba(201,168,76,0.15); margin: 0 var(--space-sm); }
 .nav-item > a, .nav-item > .nav-toggle {
   display: flex;
@@ -339,6 +339,9 @@ main > section + section::before {
 }
 .nav-item > a:hover, .nav-item > a.active, .nav-item > .nav-toggle:hover { color: var(--color-accent); }
 .nav-item > a.active { text-decoration: underline; text-decoration-color: var(--color-accent); text-underline-offset: 6px; }
+.nav-admin { border-top: 1px solid rgba(201,168,76,0.3); margin-top: var(--space-sm); }
+.nav-admin > a { color: var(--color-accent) !important; font-size: 0.9rem; opacity: 0.8; }
+.nav-admin > a:hover { opacity: 1; }
 .nav-submenu {
   max-height: 0;
   overflow: hidden;
