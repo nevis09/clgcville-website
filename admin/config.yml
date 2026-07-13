@@ -1,0 +1,137 @@
+# Decap CMS Configuration — Church Of The Living God
+# Docs: https://decapcms.org/docs/configuration-options/
+
+backend:
+  name: github
+  repo: REPLACE_WITH_YOUR_GITHUB_USERNAME/clgcville-website
+  branch: main
+  auth_type: pkce
+  app_id: REPLACE_WITH_YOUR_GITHUB_OAUTH_APP_CLIENT_ID
+
+# Where uploaded images get stored in the repo
+media_folder: assets/images
+public_folder: /assets/images
+
+# ─────────────────────────────────────────────
+# SITE CONTENT COLLECTIONS
+# Each "file" below maps to a JSON data file.
+# Your HTML pages read these JSON files via JS
+# to populate content dynamically.
+# ─────────────────────────────────────────────
+collections:
+
+  # ── GLOBAL SITE SETTINGS ──────────────────
+  - name: settings
+    label: Site Settings
+    files:
+      - label: General Settings
+        name: general
+        file: _data/settings.json
+        fields:
+          - { label: Church Name, name: church_name, widget: string, default: "Church Of The Living God" }
+          - { label: Tagline / Motto, name: tagline, widget: string }
+          - { label: Phone Number, name: phone, widget: string }
+          - { label: Email Address, name: email, widget: string, default: "info@clgcville.org" }
+          - { label: Address, name: address, widget: string, default: "2130 Berkmar Drive, Charlottesville, VA 22901" }
+          - { label: Sunday Service Time, name: sunday_time, widget: string, default: "10:00 AM" }
+          - { label: Wednesday Service Time, name: wednesday_time, widget: string, default: "7:00 PM" }
+          - label: Social Media
+            name: social
+            widget: object
+            fields:
+              - { label: Facebook URL, name: facebook, widget: string, required: false }
+              - { label: Instagram URL, name: instagram, widget: string, required: false }
+              - { label: YouTube URL, name: youtube, widget: string, required: false }
+              - { label: Twitter/X URL, name: twitter, widget: string, required: false }
+
+  # ── HOME PAGE ─────────────────────────────
+  - name: home
+    label: Home Page
+    files:
+      - label: Home Page Content
+        name: home
+        file: _data/home.json
+        fields:
+          - { label: Hero Tagline, name: hero_tagline, widget: string }
+          - { label: Hero Background Image, name: hero_image, widget: image }
+          - { label: Welcome Heading, name: welcome_heading, widget: string }
+          - { label: Welcome Text, name: welcome_text, widget: text }
+          - { label: Welcome Image, name: welcome_image, widget: image }
+          - { label: Mission Statement, name: mission_statement, widget: text }
+
+  # ── PASTOR PAGE ───────────────────────────
+  - name: pastor
+    label: Pastor Page
+    files:
+      - label: Pastor Info
+        name: pastor
+        file: _data/pastor.json
+        fields:
+          - { label: Pastor Name, name: name, widget: string }
+          - { label: Title, name: title, widget: string }
+          - { label: Pastor Photo, name: photo, widget: image }
+          - { label: Bio Paragraph 1, name: bio1, widget: text }
+          - { label: Bio Paragraph 2, name: bio2, widget: text }
+          - { label: Bio Paragraph 3, name: bio3, widget: text }
+          - { label: Quote, name: quote, widget: text }
+
+  # ── SERMONS ───────────────────────────────
+  - name: sermons
+    label: Sermons
+    folder: _data/sermons
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime }
+      - { label: Speaker, name: speaker, widget: string }
+      - { label: Series, name: series, widget: string, required: false }
+      - { label: YouTube Video ID, name: youtube_id, widget: string, required: false }
+      - { label: Thumbnail, name: thumbnail, widget: image, required: false }
+      - { label: Description, name: description, widget: text, required: false }
+
+  # ── MINISTRIES ────────────────────────────
+  - name: ministries
+    label: Ministries
+    folder: _data/ministries
+    create: true
+    fields:
+      - { label: Ministry Name, name: title, widget: string }
+      - { label: Description, name: description, widget: text }
+      - { label: Image, name: image, widget: image, required: false }
+      - { label: Order, name: order, widget: number, default: 0 }
+
+  # ── EVENTS / CALENDAR ─────────────────────
+  - name: events
+    label: Events
+    folder: _data/events
+    create: true
+    fields:
+      - { label: Event Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime }
+      - { label: End Date, name: end_date, widget: datetime, required: false }
+      - { label: Location, name: location, widget: string, required: false }
+      - { label: Description, name: description, widget: text }
+      - { label: Category, name: category, widget: select, options: [Worship, Ministries, Youth, Community, Other] }
+      - { label: Image, name: image, widget: image, required: false }
+
+  # ── GALLERY ───────────────────────────────
+  - name: gallery
+    label: Gallery
+    folder: _data/gallery
+    create: true
+    fields:
+      - { label: Image, name: image, widget: image }
+      - { label: Caption, name: caption, widget: string, required: false }
+      - { label: Category, name: category, widget: select, options: [Worship, Events, Community, All] }
+
+  # ── ANNOUNCEMENTS / NEWS ──────────────────
+  - name: announcements
+    label: Announcements
+    folder: _data/announcements
+    create: true
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime }
+      - { label: Body, name: body, widget: markdown }
+      - { label: Image, name: image, widget: image, required: false }

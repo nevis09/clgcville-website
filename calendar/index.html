@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="View upcoming events, services, and gatherings at Church Of The Living God in Charlottesville, VA.">
+<meta property="og:title" content="Calendar | Church Of The Living God">
+<meta property="og:description" content="Stay up to date with worship services, ministry meetings, youth events, and community outreach at Church Of The Living God.">
+<meta property="og:image" content="../assets/images/og-image.jpg">
+<title>Calendar | Church Of The Living God</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="../index.html" class="logo"><i class="fa-solid fa-cross"></i> Church Of The Living God <span class="sub"></span></a>
+    <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-overlay">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
+  </div>
+</header>
+
+<nav class="nav-overlay" id="nav-overlay" aria-label="Main navigation">
+  <button class="nav-close" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
+  <div class="nav-list-wrap">
+    <ul>
+      <li class="nav-item"><a href="../index.html">Home</a></li>
+      <li class="nav-item"><a href="../live/index.html">Live Stream</a></li>
+      <li class="nav-item"><a href="../sermons/index.html">Sermons</a></li>
+      <li class="nav-item"><a href="../service-times/index.html">Service Times</a></li>
+      <li class="nav-item"><a href="../calendar/index.html" class="active">Calendar</a></li>
+      <li class="nav-item"><a href="../school-of-bible-studies/index.html">School of Bible Studies</a></li>
+      <li class="nav-item"><a href="../online-giving/index.html">Online Giving</a></li>
+      <li class="nav-item"><a href="../gallery/index.html">Gallery</a></li>
+      <li class="nav-item"><a href="../prayer-request/index.html">Prayer Request</a></li>
+      <li class="nav-item"><a href="../salvation/index.html">Salvation</a></li>
+      <li class="nav-item">
+        <button class="nav-toggle" aria-expanded="false">About Us <i class="fa-solid fa-chevron-down chevron"></i></button>
+        <ul class="nav-submenu">
+          <li><a href="../contact/index.html">Contact Us</a></li>
+          <li><a href="../about/mission/index.html">Mission</a></li>
+          <li><a href="../about/pastor/index.html">Pastor</a></li>
+          <li><a href="../about/church-history/index.html">Church History</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+
+  <section class="page-hero" style="background-image: url('https://images.unsplash.com/photo-1776091104217-02e3732a4a81?auto=format&fit=crop&w=1600&h=900&q=75');">
+    <div class="hero-content">
+      <span class="eyebrow">What's Happening</span>
+      <h1>Calendar</h1>
+      <p class="breadcrumb"><a href="../index.html">Home</a> / Calendar</p>
+    </div>
+  </section>
+
+  <section class="section-dark">
+    <div class="container fade-in-up">
+
+      <div class="calendar-wrap">
+        <div class="calendar-grid-wrap">
+          <div class="calendar-header">
+            <h2 class="cal-month-label"></h2>
+            <div class="cal-nav">
+              <button class="cal-prev" aria-label="Previous month"><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="cal-next" aria-label="Next month"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <div class="view-toggle">
+              <button data-view="month" class="active">Month</button>
+              <button data-view="list">List</button>
+            </div>
+          </div>
+          <div class="calendar-grid">
+            <div class="dow">Sun</div><div class="dow">Mon</div><div class="dow">Tue</div><div class="dow">Wed</div><div class="dow">Thu</div><div class="dow">Fri</div><div class="dow">Sat</div>
+          </div>
+        </div>
+
+        <div class="list-view">
+          <div class="event-item"><span class="date">Jul 2</span><div>Bible Study</div></div>
+          <div class="event-item"><span class="date">Jul 5</span><div>Sunday Worship</div></div>
+          <div class="event-item"><span class="date">Jul 9</span><div>Youth Night</div></div>
+          <div class="event-item"><span class="date">Jul 10</span><div>Prayer Meeting</div></div>
+          <div class="event-item"><span class="date">Jul 12</span><div>Sunday Worship</div></div>
+          <div class="event-item"><span class="date">Jul 15</span><div>Community Outreach</div></div>
+          <div class="event-item"><span class="date">Jul 17</span><div>Bible Study</div></div>
+          <div class="event-item"><span class="date">Jul 19</span><div>Sunday Worship</div></div>
+          <div class="event-item"><span class="date">Jul 23</span><div>Men's Fellowship</div></div>
+          <div class="event-item"><span class="date">Jul 24</span><div>Bible Study</div></div>
+          <div class="event-item"><span class="date">Jul 26</span><div>Sunday Worship</div></div>
+          <div class="event-item"><span class="date">Jul 30</span><div>Women's Fellowship</div></div>
+        </div>
+
+        <aside class="cal-sidebar">
+          <h3>Upcoming Events</h3>
+          <div class="event-item"><div class="date">Jul 12</div><div>Sunday Worship</div></div>
+          <div class="event-item"><div class="date">Jul 15</div><div>Community Outreach</div></div>
+          <div class="event-item"><div class="date">Jul 17</div><div>Bible Study</div></div>
+          <div class="event-item"><div class="date">Jul 19</div><div>Sunday Worship</div></div>
+          <div class="event-item"><div class="date">Jul 23</div><div>Men's Fellowship</div></div>
+        </aside>
+      </div>
+
+      <div class="legend-row" style="display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;margin-top:var(--space-lg);">
+        <span style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.85rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:rgba(201,168,76,0.6);"></span> Worship</span>
+        <span style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.85rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--color-accent);"></span> Ministries</span>
+        <span style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.85rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:rgba(232,227,216,0.6);"></span> Youth</span>
+        <span style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.85rem;"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--color-primary);border:1px solid var(--color-accent);"></span> Community</span>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="../index.html" class="logo"><i class="fa-solid fa-cross"></i> Church Of The Living God</a>
+        <p>[TAGLINE PLACEHOLDER] — a warm, welcoming community in Charlottesville, VA.</p>
+        <div class="social-row">
+          <a href="[FACEBOOK URL PLACEHOLDER]" aria-label="Facebook" target="_blank" rel="noopener"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="[INSTAGRAM URL PLACEHOLDER]" aria-label="Instagram" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i></a>
+          <a href="[YOUTUBE URL PLACEHOLDER]" aria-label="YouTube" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i></a>
+          <a href="[TWITTER URL PLACEHOLDER]" aria-label="Twitter/X" target="_blank" rel="noopener"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="../service-times/index.html">Service Times</a></li>
+          <li><a href="../online-giving/index.html">Online Giving</a></li>
+          <li><a href="../calendar/index.html">Calendar</a></li>
+          <li><a href="../school-of-bible-studies/index.html">School of Bible Studies</a></li>
+          <li><a href="../privacy-policy/index.html">Privacy Policy</a></li>
+          <li><a href="../contact/index.html">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p class="contact-line"><i class="fa-solid fa-location-dot"></i> 2130 Berkmar Drive, Charlottesville, VA 22901</p>
+        <p class="contact-line"><i class="fa-solid fa-phone"></i> [PHONE PLACEHOLDER]</p>
+        <p class="contact-line"><i class="fa-solid fa-envelope"></i> info@clgcville.org</p>
+        <p class="contact-line"><i class="fa-solid fa-clock"></i> Sun 10:00 AM &middot; Wed 7:00 PM</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Church Of The Living God, Charlottesville. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script src="../main.js"></script>
+</body>
+</html>

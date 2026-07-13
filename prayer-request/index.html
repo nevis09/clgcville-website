@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Submit a confidential prayer request or share your testimony with Church Of The Living God in Charlottesville, VA. Our prayer team will be in agreement with you.">
+<meta property="og:title" content="Prayer Request | Church Of The Living God">
+<meta property="og:description" content="Submit a confidential prayer request or share your testimony with Church Of The Living God, Charlottesville, VA.">
+<meta property="og:image" content="../assets/images/og-image.jpg">
+<title>Prayer Request | Church Of The Living God</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="../index.html" class="logo"><i class="fa-solid fa-cross"></i> Church Of The Living God <span class="sub"></span></a>
+    <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-overlay">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
+  </div>
+</header>
+
+<nav class="nav-overlay" id="nav-overlay" aria-label="Main navigation">
+  <button class="nav-close" aria-label="Close menu"><i class="fa-solid fa-xmark"></i></button>
+  <div class="nav-list-wrap">
+    <ul>
+      <li class="nav-item"><a href="../index.html">Home</a></li>
+      <li class="nav-item"><a href="../live/index.html">Live Stream</a></li>
+      <li class="nav-item"><a href="../sermons/index.html">Sermons</a></li>
+      <li class="nav-item"><a href="../service-times/index.html">Service Times</a></li>
+      <li class="nav-item"><a href="../calendar/index.html">Calendar</a></li>
+      <li class="nav-item"><a href="../school-of-bible-studies/index.html">School of Bible Studies</a></li>
+      <li class="nav-item"><a href="../online-giving/index.html">Online Giving</a></li>
+      <li class="nav-item"><a href="../gallery/index.html">Gallery</a></li>
+      <li class="nav-item"><a href="../prayer-request/index.html" class="active">Prayer Request</a></li>
+      <li class="nav-item"><a href="../salvation/index.html">Salvation</a></li>
+      <li class="nav-item">
+        <button class="nav-toggle" aria-expanded="false">About Us <i class="fa-solid fa-chevron-down chevron"></i></button>
+        <ul class="nav-submenu">
+          <li><a href="../contact/index.html">Contact Us</a></li>
+          <li><a href="../about/mission/index.html">Mission</a></li>
+          <li><a href="../about/pastor/index.html">Pastor</a></li>
+          <li><a href="../about/church-history/index.html">Church History</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+
+  <section class="page-hero" style="background-image: url('https://images.unsplash.com/photo-1759375577204-2f169152a151?auto=format&fit=crop&w=1600&h=900&q=75');">
+    <div class="hero-content">
+      <span class="eyebrow">We're Here For You</span>
+      <h1>Prayer Request</h1>
+      <p class="breadcrumb"><a href="../index.html">Home</a> / Prayer Request</p>
+    </div>
+  </section>
+
+  <section class="section-dark">
+    <div class="container two-col fade-in-up">
+      <div>
+        <span class="eyebrow">Come As You Are</span>
+        <h2>Bring Him Your Heart — Whatever It Holds</h2>
+        <div class="rule"></div>
+        <p>Every request is confidential, and our prayer team will be in agreement with you. But faith isn't only found in what we're asking for — it's also found in what God has already done. Whether you're carrying a need today or carrying a story of how He met you in a hard season, we want to hear it and stand with you.</p>
+        <blockquote class="scripture-callout" style="text-align:left;max-width:none;margin:var(--space-md) 0 0;font-size:1.35rem;">
+          "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God."
+          <cite>Philippians 4:6</cite>
+        </blockquote>
+      </div>
+      <div>
+        <img src="../assets/images/gallery/church-cross.avif" alt="Cross atop the church building">
+      </div>
+    </div>
+  </section>
+
+  <section class="section-light">
+    <div class="container fade-in-up">
+      <div class="section-heading">
+        <span class="eyebrow">Let's Connect</span>
+        <h2>Share What's On Your Heart</h2>
+        <div class="rule center"></div>
+        <p style="max-width:600px;margin:0 auto;">Ask, or testify — either way, our team will follow up with you personally.</p>
+      </div>
+
+      <div class="filter-bar" style="margin-bottom:var(--space-lg);">
+        <button type="button" class="filter-pill active" data-form-tab="prayer">Prayer Request</button>
+        <button type="button" class="filter-pill" data-form-tab="testimony">Share a Testimony</button>
+      </div>
+
+      <div data-form-panel="prayer">
+        <form data-static-form>
+          <div class="form-group">
+            <label for="pr-name">Name <span style="opacity:.6;font-weight:400;">(optional)</span></label>
+            <input type="text" id="pr-name" name="name" class="form-control" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label for="pr-email">Email <span style="opacity:.6;font-weight:400;">(optional)</span></label>
+            <input type="email" id="pr-email" name="email" class="form-control" placeholder="you@example.com">
+          </div>
+          <div class="form-group">
+            <label for="pr-request">Prayer Request</label>
+            <textarea id="pr-request" name="request" class="form-control" placeholder="Share what's on your heart..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+        </form>
+        <div class="form-success">Your prayer request has been received. Our team is praying with you.</div>
+      </div>
+
+      <div data-form-panel="testimony" style="display:none;">
+        <form data-static-form>
+          <div class="form-group">
+            <label for="test-name">Name</label>
+            <input type="text" id="test-name" name="name" class="form-control" placeholder="Your full name" required>
+          </div>
+          <div class="form-group">
+            <label for="test-email">Email</label>
+            <input type="email" id="test-email" name="email" class="form-control" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="test-phone">Phone <span style="opacity:0.6;font-weight:400;">(optional)</span></label>
+            <input type="tel" id="test-phone" name="phone" class="form-control" placeholder="(555) 555-5555">
+          </div>
+          <div class="form-group">
+            <label for="test-testimony">Testimony</label>
+            <textarea id="test-testimony" name="testimony" class="form-control" placeholder="Tell us what God has done in your life" required></textarea>
+          </div>
+          <div class="form-group checkbox-row">
+            <input type="checkbox" id="test-checkbox" name="permission" required>
+            <label for="test-checkbox">I give permission for my testimony to be shared publicly</label>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Testimony</button>
+        </form>
+        <div class="form-success">Thank you for sharing! Our team will follow up with you.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="../index.html" class="logo"><i class="fa-solid fa-cross"></i> Church Of The Living God</a>
+        <p>[TAGLINE PLACEHOLDER] — a warm, welcoming community in Charlottesville, VA.</p>
+        <div class="social-row">
+          <a href="[FACEBOOK URL PLACEHOLDER]" aria-label="Facebook" target="_blank" rel="noopener"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="[INSTAGRAM URL PLACEHOLDER]" aria-label="Instagram" target="_blank" rel="noopener"><i class="fa-brands fa-instagram"></i></a>
+          <a href="[YOUTUBE URL PLACEHOLDER]" aria-label="YouTube" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i></a>
+          <a href="[TWITTER URL PLACEHOLDER]" aria-label="Twitter/X" target="_blank" rel="noopener"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="../service-times/index.html">Service Times</a></li>
+          <li><a href="../online-giving/index.html">Online Giving</a></li>
+          <li><a href="../calendar/index.html">Calendar</a></li>
+          <li><a href="../school-of-bible-studies/index.html">School of Bible Studies</a></li>
+          <li><a href="../privacy-policy/index.html">Privacy Policy</a></li>
+          <li><a href="../contact/index.html">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p class="contact-line"><i class="fa-solid fa-location-dot"></i> 2130 Berkmar Drive, Charlottesville, VA 22901</p>
+        <p class="contact-line"><i class="fa-solid fa-phone"></i> [PHONE PLACEHOLDER]</p>
+        <p class="contact-line"><i class="fa-solid fa-envelope"></i> info@clgcville.org</p>
+        <p class="contact-line"><i class="fa-solid fa-clock"></i> Sun 10:00 AM &middot; Wed 7:00 PM</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Church Of The Living God, Charlottesville. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script src="../main.js"></script>
+</body>
+</html>
