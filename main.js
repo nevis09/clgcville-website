@@ -234,25 +234,51 @@
     fetch('/api/content?section=announcements')
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
-        var items = ((data && data.items) || []).slice()
-          .sort(function (a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; })
-          .slice(0, 3);
-
-        if (!items.length) {
+        var all = ((data && data.items) || []).slice();
+        if (!all.length) {
           list.innerHTML =
             '<p style="text-align:center;opacity:0.6;padding:var(--space-md) 0;">No announcements at this time — check back soon.</p>';
           return;
         }
 
-        list.innerHTML = items.map(function (ann) {
+        var todayStr = new Date().toISOString().slice(0, 10);
+
+        // Separate upcoming (date >= today) from past
+        var upcoming = all.filter(function (a) { return (a.date || '') >= todayStr; })
+          .sort(function (a, b) { return (a.date || '') > (b.date || '') ? 1 : -1; }); // soonest first
+        var past = all.filter(function (a) { return (a.date || '') < todayStr; })
+          .sort(function (a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; }); // newest first
+
+        // Featured: soonest upcoming, or most recent past if none upcoming
+        var featured = upcoming.length ? upcoming[0] : past[0];
+
+        // Remaining: up to 2 more, excluding featured, recent-first
+        var rest = all.filter(function (a) { return a !== featured; })
+          .sort(function (a, b) { return (b.date || '') > (a.date || '') ? 1 : -1; })
+          .slice(0, 2);
+
+        var isUpcoming = upcoming.length > 0;
+
+        function card(ann, isFeatured) {
           var excerpt = (ann.body || '').replace(/\n/g, ' ').trim();
-          if (excerpt.length > 160) excerpt = excerpt.slice(0, 157) + '…';
+          var maxLen = isFeatured ? 220 : 130;
+          if (excerpt.length > maxLen) excerpt = excerpt.slice(0, maxLen - 3) + '…';
+          if (isFeatured) {
+            return '<div class="home-ann-featured">' +
+              (isUpcoming ? '<span class="home-ann-badge">Upcoming</span>' : '') +
+              '<div class="home-ann-date">' + esc(fmtDate(ann.date)) + '</div>' +
+              '<h3 class="home-ann-title">' + esc(ann.title || '') + '</h3>' +
+              (excerpt ? '<p class="home-ann-body">' + esc(excerpt) + '</p>' : '') +
+              '</div>';
+          }
           return '<div class="home-ann-card">' +
             '<div class="home-ann-date">' + esc(fmtDate(ann.date)) + '</div>' +
             '<h3 class="home-ann-title">' + esc(ann.title || '') + '</h3>' +
             (excerpt ? '<p class="home-ann-body">' + esc(excerpt) + '</p>' : '') +
             '</div>';
-        }).join('');
+        }
+
+        list.innerHTML = card(featured, true) + rest.map(function (a) { return card(a, false); }).join('');
       })
       .catch(function () {
         list.innerHTML =
