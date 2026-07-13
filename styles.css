@@ -322,7 +322,7 @@ main > section + section::before {
 .nav-close:hover { background: rgba(201,168,76,0.22); border-color: var(--color-accent); }
 .nav-close:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(201,168,76,0.4); }
 .nav-overlay ul { text-align: center; width: 100%; max-width: 420px; margin: 0 auto; }
-.nav-overlay > .container, .nav-list-wrap { width: 100%; padding-top: max(60px, 10vh); padding-bottom: var(--space-xl); }
+.nav-overlay > .container, .nav-list-wrap { width: 100%; padding-top: 8px; padding-bottom: 0.75rem; }
 .nav-item { border-bottom: 1px solid rgba(201,168,76,0.15); margin: 0 var(--space-sm); }
 .nav-item > a, .nav-item > .nav-toggle {
   display: flex;
