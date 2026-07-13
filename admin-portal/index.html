@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin Portal | Church Of The Living God</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1B4332;
+      --primary-light: #2D6A4F;
+      --accent: #C9A84C;
+      --dark: #0D1F17;
+      --surface: #FFFFFF;
+      --surface-alt: #F4F6F4;
+      --text: #1A1A1A;
+      --text-muted: #6B7280;
+      --border: #E5E7EB;
+      --danger: #DC2626;
+      --success: #16A34A;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--surface-alt);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── LOGIN ───────────────────────────────── */
+    #login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: linear-gradient(145deg, var(--dark) 0%, var(--primary) 60%, #2D6A4F 100%);
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 18px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .login-logo .cross-icon {
+      width: 52px;
+      height: 52px;
+      background: var(--primary);
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      font-size: 22px;
+    }
+
+    .login-logo h1 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.3;
+    }
+
+    .login-logo p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    /* ── FORM ELEMENTS ───────────────────────── */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: white;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(27,67,50,0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.5;
+    }
+
+    .form-group .hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-with-icon input {
+      padding-right: 42px;
+    }
+
+    .input-icon-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 15px;
+      padding: 2px;
+    }
+
+    /* ── BUTTONS ─────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 18px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.18s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--dark);
+      width: 100%;
+      justify-content: center;
+      padding: 13px;
+      font-size: 14px;
+    }
+
+    .btn-primary:hover:not(:disabled) { background: #b8962e; }
+
+    .btn-green {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-green:hover:not(:disabled) { background: var(--primary-light); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+
+    .btn-outline:hover:not(:disabled) { background: var(--primary); color: white; }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1.5px solid #FECACA;
+    }
+
+    .btn-danger:hover:not(:disabled) { background: #FEF2F2; border-color: var(--danger); }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85);
+      border: none;
+    }
+
+    .btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
+
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
+
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* ── ALERTS ──────────────────────────────── */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 9px;
+      font-size: 13px;
+      margin-top: 14px;
+      display: none;
+    }
+
+    .alert-error {
+      background: #FEF2F2;
+      color: var(--danger);
+      border: 1px solid #FECACA;
+    }
+
+    /* ── DASHBOARD LAYOUT ────────────────────── */
+    #dashboard {
+      display: grid;
+      grid-template-columns: 252px 1fr;
+      grid-template-rows: 58px 1fr;
+      height: 100vh;
+    }
+
+    /* Header */
+    .dash-header {
+      grid-column: 1 / -1;
+      background: var(--dark);
+      display: flex;
+      align-items: center;
+      padding: 0 20px 0 0;
+      gap: 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 20px;
+      width: 252px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      height: 100%;
+    }
+
+    .brand-icon {
+      width: 30px;
+      height: 30px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+
+    .brand-text span {
+      display: block;
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 20px;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22C55E;
+      animation: livePulse 2s ease infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .view-site-link {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      transition: all 0.15s;
+    }
+
+    .view-site-link:hover { color: var(--accent); background: rgba(255,255,255,0.05); }
+
+    /* Sidebar */
+    #sidebar {
+      background: var(--primary);
+      overflow-y: auto;
+      padding: 12px 0 20px;
+    }
+
+    .nav-section-label {
+      text-transform: uppercase;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 1.2px;
+      padding: 14px 18px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 18px;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+      font-size: 13.5px;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.07);
+      color: white;
+    }
+
+    .nav-item.active {
+      background: rgba(201,168,76,0.12);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-icon { width: 18px; text-align: center; font-size: 14px; }
+
+    /* Content area */
+    #content-area {
+      overflow-y: auto;
+      padding: 28px 32px;
+      background: var(--surface-alt);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      gap: 16px;
+    }
+
+    .section-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+
+    .section-header p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 18px;
+      padding-bottom: 11px;
+      border-bottom: 2px solid var(--surface-alt);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-grid .full { grid-column: 1 / -1; }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .save-note {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    /* ── COLLECTION UI ───────────────────────── */
+    .collection-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .collection-item {
+      background: white;
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1.5px solid var(--border);
+      transition: border-color 0.15s;
+    }
+
+    .collection-item:hover { border-color: var(--primary-light); }
+
+    .item-info h4 {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .item-info p {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .item-actions { display: flex; gap: 7px; flex-shrink: 0; }
+
+    .empty-state {
+      text-align: center;
+      padding: 56px 24px;
+      color: var(--text-muted);
+      background: white;
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+    }
+
+    .empty-state .empty-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.35; }
+    .empty-state p { font-size: 13px; }
+    .empty-state small { font-size: 11.5px; margin-top: 4px; display: block; }
+
+    /* ── MODAL ───────────────────────────────── */
+    #modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal {
+      background: white;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 1;
+      border-radius: 14px 14px 0 0;
+    }
+
+    .modal-header h3 { font-size: 16px; font-weight: 700; color: var(--primary); }
+
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: var(--text-muted);
+      line-height: 1;
+      padding: 2px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+
+    .modal-close:hover { background: var(--surface-alt); }
+
+    .modal-body { padding: 22px; }
+
+    /* ── TOAST ───────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 11px 18px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 500;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+      animation: toastIn 0.25s ease;
+      max-width: 300px;
+      pointer-events: auto;
+    }
+
+    .toast-success { background: var(--success); color: white; }
+    .toast-error   { background: var(--danger);  color: white; }
+    .toast-info    { background: var(--primary);  color: white; }
+
+    @keyframes toastIn {
+      from { transform: translateX(110%); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    /* ── SPINNERS / LOADING ──────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+    }
+
+    .spinner-dark {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 60px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .error-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 60px;
+      color: var(--danger);
+      font-size: 14px;
+      background: white;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="cross-icon">✝️</div>
+      <h1>Church Of The Living God</h1>
+      <p>Admin Portal · Charlottesville, VA</p>
+    </div>
+
+    <form id="login-form" autocomplete="on">
+      <div class="form-group">
+        <label for="inp-username">Username</label>
+        <input type="text" id="inp-username" name="username"
+               placeholder="Enter your username"
+               autocomplete="username" required />
+      </div>
+
+      <div class="form-group">
+        <label for="inp-password">Password</label>
+        <div class="input-with-icon">
+          <input type="password" id="inp-password" name="password"
+                 placeholder="Enter your password"
+                 autocomplete="current-password" required />
+          <button type="button" class="input-icon-btn" id="toggle-pw" aria-label="Show password">👁</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="login-btn">Sign In</button>
+
+      <div class="alert alert-error" id="login-error"></div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     DASHBOARD
+═══════════════════════════════════════════ -->
+<div id="dashboard" style="display:none">
+
+  <!-- Header -->
+  <header class="dash-header">
+    <div class="header-brand">
+      <div class="brand-icon">✝️</div>
+      <div class="brand-text">
+        CLG Admin Portal
+        <span>Church Of The Living God</span>
+      </div>
+    </div>
+
+    <div class="header-meta">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        clgcville.org
+      </div>
+    </div>
+
+    <div class="header-right">
+      <a href="https://clgcville.org" target="_blank" rel="noopener" class="view-site-link">
+        🌐 View Site
+      </a>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="nav-section-label">Site Content</div>
+
+    <div class="nav-item active" data-s="settings" onclick="switchSection('settings')">
+      <span class="nav-icon">⚙️</span> Site Settings
+    </div>
+    <div class="nav-item" data-s="home" onclick="switchSection('home')">
+      <span class="nav-icon">🏠</span> Home Page
+    </div>
+    <div class="nav-item" data-s="pastor" onclick="switchSection('pastor')">
+      <span class="nav-icon">👤</span> Pastor
+    </div>
+
+    <div class="nav-section-label">Media &amp; Events</div>
+
+    <div class="nav-item" data-s="sermons" onclick="switchSection('sermons')">
+      <span class="nav-icon">🎙️</span> Sermons
+    </div>
+    <div class="nav-item" data-s="events" onclick="switchSection('events')">
+      <span class="nav-icon">📅</span> Events
+    </div>
+    <div class="nav-item" data-s="announcements" onclick="switchSection('announcements')">
+      <span class="nav-icon">📢</span> Announcements
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main id="content-area">
+    <div class="loading-state"><div class="spinner-dark"></div> Loading…</div>
+  </main>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL
+═══════════════════════════════════════════ -->
+<div id="modal-overlay" style="display:none" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Edit Item</h3>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════ -->
+<div id="toast-container"></div>
+
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ── State ──────────────────────────────────────────
+const APP = {
+  token: sessionStorage.getItem('adminToken') || null,
+  section: 'settings',
+  collectionCache: {},   // section → items[]
+};
+
+// ── Boot ───────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('login-form').addEventListener('submit', doLogin);
+  document.getElementById('toggle-pw').addEventListener('click', togglePw);
+
+  if (APP.token) {
+    showDashboard();
+    loadSection('settings');
+  }
+});
+
+// ── Auth ───────────────────────────────────────────
+async function doLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+  const username = document.getElementById('inp-username').value.trim();
+  const password = document.getElementById('inp-password').value;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+
+    if (res.ok && data.token) {
+      APP.token = data.token;
+      sessionStorage.setItem('adminToken', data.token);
+      showDashboard();
+      loadSection('settings');
+    } else {
+      showLoginError(data.error || 'Login failed — check your credentials.');
+      btn.disabled = false;
+      btn.innerHTML = 'Sign In';
+    }
+  } catch {
+    showLoginError('Could not reach the server. Make sure Cloudflare environment variables are configured.');
+    btn.disabled = false;
+    btn.innerHTML = 'Sign In';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('adminToken');
+  APP.token = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-form').reset();
+  document.getElementById('login-error').style.display = 'none';
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function togglePw() {
+  const inp = document.getElementById('inp-password');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ── Layout helpers ─────────────────────────────────
+function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'grid';
+}
+
+function switchSection(section) {
+  APP.section = section;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.s === section);
+  });
+  loadSection(section);
+}
+
+// ── API helpers ────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(path, opts);
+  if (res.status === 401) { doLogout(); throw new Error('Session expired — please sign in again.'); }
+  return res;
+}
+
+async function apiGet(section) {
+  const res = await apiFetch(`/api/content?section=${section}`);
+  if (!res.ok) throw new Error('Failed to load content.');
+  return res.json();
+}
+
+async function apiPut(section, data, fileName) {
+  const body = { token: APP.token, section, data };
+  if (fileName) body.fileName = fileName;
+  const res = await apiFetch('/api/content', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Save failed.'); }
+  return res.json();
+}
+
+async function apiDelete(filePath) {
+  const res = await apiFetch('/api/content', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: APP.token, filePath }),
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Delete failed.'); }
+  return res.json();
+}
+
+// ── Section loader ─────────────────────────────────
+async function loadSection(section) {
+  const area = document.getElementById('content-area');
+  area.innerHTML = '<div class="loading-state"><div class="spinner-dark"></div> Loading…</div>';
+
+  try {
+    if (['settings', 'home', 'pastor'].includes(section)) {
+      const data = await apiGet(section);
+      renderForm(section, data);
+    } else {
+      const { items } = await apiGet(section);
+      APP.collectionCache[section] = items || [];
+      renderCollection(section, APP.collectionCache[section]);
+    }
+  } catch (err) {
+    area.innerHTML = `<div class="error-state">❌ ${esc(err.message)}</div>`;
+  }
+}
+
+// ── Form renderer ──────────────────────────────────
+const FORM_CONFIGS = {
+  settings: {
+    title: 'Site Settings',
+    desc:  'Church info and social links shown across all pages',
+    groups: [
+      {
+        label: 'Church Information',
+        fields: [
+          { label: 'Church Name',              key: 'church_name',     type: 'text'  },
+          { label: 'Tagline / Motto',          key: 'tagline',         type: 'text',  full: true },
+          { label: 'Phone Number',             key: 'phone',           type: 'tel'   },
+          { label: 'Email Address',            key: 'email',           type: 'email' },
+          { label: 'Street Address',           key: 'address',         type: 'text',  full: true },
+          { label: 'Sunday Service Time',      key: 'sunday_time',     type: 'text'  },
+          { label: 'Wednesday Service Time',   key: 'wednesday_time',  type: 'text'  },
+        ],
+      },
+      {
+        label: 'Social Media Links',
+        fields: [
+          { label: 'Facebook URL',   key: 'social.facebook',  type: 'url' },
+          { label: 'Instagram URL',  key: 'social.instagram', type: 'url' },
+          { label: 'YouTube URL',    key: 'social.youtube',   type: 'url' },
+          { label: 'Twitter / X URL', key: 'social.twitter', type: 'url' },
+        ],
+      },
+    ],
+  },
+  home: {
+    title: 'Home Page',
+    desc:  'Content shown on the homepage hero and welcome section',
+    groups: [
+      {
+        label: 'Hero & Welcome Content',
+        fields: [
+          { label: 'Hero Tagline',       key: 'hero_tagline',       type: 'text',     full: true },
+          { label: 'Welcome Heading',    key: 'welcome_heading',    type: 'text',     full: true },
+          { label: 'Welcome Message',    key: 'welcome_text',       type: 'textarea', full: true },
+          { label: 'Mission Statement',  key: 'mission_statement',  type: 'textarea', full: true },
+        ],
+      },
+    ],
+  },
+  pastor: {
+    title: 'Pastor',
+    desc:  'Content shown on the Pastor / About page',
+    groups: [
+      {
+        label: 'Pastor Information',
+        fields: [
+          { label: 'Full Name',         key: 'name',  type: 'text' },
+          { label: 'Title / Role',      key: 'title', type: 'text' },
+          { label: 'Bio — Paragraph 1', key: 'bio1',  type: 'textarea', full: true },
+          { label: 'Bio — Paragraph 2', key: 'bio2',  type: 'textarea', full: true },
+          { label: 'Bio — Paragraph 3', key: 'bio3',  type: 'textarea', full: true },
+          { label: 'Featured Quote',    key: 'quote', type: 'textarea', full: true },
+        ],
+      },
+    ],
+  },
+};
+
+function renderForm(section, data) {
+  const cfg = FORM_CONFIGS[section];
+  let html = `
+    <div class="section-header">
+      <div><h2>${cfg.title}</h2><p>${cfg.desc}</p></div>
+    </div>`;
+
+  cfg.groups.forEach((group, gi) => {
+    html += `<div class="card"><div class="card-title">${group.label}</div><div class="form-grid">`;
+
+    group.fields.forEach(f => {
+      const id = `ff-${f.key.replace(/\./g,'-')}`;
+      const rawVal = deepGet(data, f.key);
+      const val = rawVal ?? '';
+      const cls = f.full ? 'full' : '';
+
+      if (f.type === 'textarea') {
+        html += `<div class="form-group ${cls}">
+          <label for="${id}">${esc(f.label)}</label>
+          <textarea id="${id}" rows="4">${esc(val)}</textarea>
+        </div>`;
+      } else {
+        html += `<div class="form-group ${cls}">
+          <label for="${id}">${esc(f.label)}</label>
+          <input type="${f.type}" id="${id}" value="${esc(val)}" />
+        </div>`;
+      }
+    });
+
+    html += `</div>
+      <div class="form-actions">
+        <button class="btn btn-green" onclick="saveForm('${section}')">
+          💾 Save ${group.label}
+        </button>
+        <span class="save-note">Changes go live in ~60 sec</span>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('content-area').innerHTML = html;
+}
+
+async function saveForm(section) {
+  const cfg = FORM_CONFIGS[section];
+  const data = buildFormData(section, cfg);
+
+  const btns = document.querySelectorAll(`[onclick="saveForm('${section}')"]`);
+  btns.forEach(b => { b.disabled = true; b.innerHTML = '<span class="spinner"></span> Saving…'; });
+
+  try {
+    await apiPut(section, data);
+    toast('✅ Saved! Site will update in ~60 seconds.', 'success');
+  } catch (err) {
+    toast('❌ ' + err.message, 'error');
+  } finally {
+    btns.forEach(b => { b.disabled = false; b.innerHTML = `💾 Save`; });
+  }
+}
+
+function buildFormData(section, cfg) {
+  const obj = {};
+  cfg.groups.forEach(g => {
+    g.fields.forEach(f => {
+      const id = `ff-${f.key.replace(/\./g,'-')}`;
+      const el = document.getElementById(id);
+      if (!el) return;
+      deepSet(obj, f.key, el.value);
+    });
+  });
+
+  // Preserve non-editable fields that are in the existing data
+  if (section === 'home') {
+    obj.hero_image    = obj.hero_image    || '/assets/images/hero-bg.jpg';
+    obj.welcome_image = obj.welcome_image || '/assets/images/welcome.jpg';
+  }
+  if (section === 'pastor') {
+    obj.photo = obj.photo || '/assets/images/pastor-placeholder.jpg';
+  }
+
+  return obj;
+}
+
+// ── Collection renderer ────────────────────────────
+const COLLECTION_CFG = {
+  sermons: {
+    title: 'Sermons',
+    desc:  'Sermon archive — add recordings and messages',
+    icon:  '🎙️',
+    singular: 'Sermon',
+    labelFn: i => i.title || 'Untitled Sermon',
+    subFn:   i => [fmtDate(i.date), i.speaker].filter(Boolean).join(' · ') || '—',
+    fields: [
+      { label: 'Sermon Title', key: 'title',      type: 'text',     required: true },
+      { label: 'Date',         key: 'date',       type: 'date',     required: true },
+      { label: 'Speaker',      key: 'speaker',    type: 'text' },
+      { label: 'Series',       key: 'series',     type: 'text' },
+      { label: 'YouTube Video ID', key: 'youtube_id', type: 'text',
+        hint: 'The ID at the end of the YouTube URL (e.g. dQw4w9WgXcQ)' },
+      { label: 'Description',  key: 'description', type: 'textarea', full: true },
+    ],
+    mkFileName: i => mkFN(i.date, i.title, 'sermon'),
+  },
+  events: {
+    title: 'Events',
+    desc:  'Church calendar — services, programs, and special events',
+    icon:  '📅',
+    singular: 'Event',
+    labelFn: i => i.title || 'Untitled Event',
+    subFn:   i => [fmtDate(i.date), i.location, i.category].filter(Boolean).join(' · ') || '—',
+    fields: [
+      { label: 'Event Title', key: 'title',    type: 'text',   required: true },
+      { label: 'Date',        key: 'date',     type: 'date',   required: true },
+      { label: 'Location',    key: 'location', type: 'text' },
+      { label: 'Category',    key: 'category', type: 'select',
+        options: ['Worship','Ministries','Youth','Community','Other'] },
+      { label: 'Description', key: 'description', type: 'textarea', full: true },
+    ],
+    mkFileName: i => mkFN(i.date, i.title, 'event'),
+  },
+  announcements: {
+    title: 'Announcements',
+    desc:  'News and announcements for the congregation',
+    icon:  '📢',
+    singular: 'Announcement',
+    labelFn: i => i.title || 'Untitled Announcement',
+    subFn:   i => fmtDate(i.date) || '—',
+    fields: [
+      { label: 'Title', key: 'title', type: 'text',     required: true },
+      { label: 'Date',  key: 'date',  type: 'date',     required: true },
+      { label: 'Body',  key: 'body',  type: 'textarea', full: true, rows: 8 },
+    ],
+    mkFileName: i => mkFN(i.date, i.title, 'announcement'),
+  },
+};
+
+function renderCollection(section, items) {
+  const cfg = COLLECTION_CFG[section];
+  // Sort newest first
+  const sorted = [...items].sort((a,b) => (b.date||'') > (a.date||'') ? 1 : -1);
+
+  let html = `
+    <div class="section-header">
+      <div><h2>${cfg.title}</h2><p>${cfg.desc}</p></div>
+      <button class="btn btn-green" onclick="openAdd('${section}')">+ Add ${cfg.singular}</button>
+    </div>
+    <div class="collection-list">`;
+
+  if (sorted.length === 0) {
+    html += `<div class="empty-state">
+      <div class="empty-icon">${cfg.icon}</div>
+      <p>No ${cfg.title.toLowerCase()} yet.</p>
+      <small>Click "Add ${cfg.singular}" above to create the first one.</small>
+    </div>`;
+  } else {
+    sorted.forEach((item, idx) => {
+      html += `<div class="collection-item">
+        <div class="item-info">
+          <h4>${esc(cfg.labelFn(item))}</h4>
+          <p>${esc(cfg.subFn(item))}</p>
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-outline btn-sm" onclick="openEdit('${section}',${idx})">✏️ Edit</button>
+          <button class="btn btn-danger  btn-sm" onclick="confirmDelete('${section}',${idx})">🗑️</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  html += '</div>';
+  document.getElementById('content-area').innerHTML = html;
+  // Store sorted in cache so index matches
+  APP.collectionCache[section] = sorted;
+}
+
+// ── Collection modal ───────────────────────────────
+function openAdd(section) {
+  const cfg = COLLECTION_CFG[section];
+  document.getElementById('modal-title').textContent = `Add ${cfg.singular}`;
+  document.getElementById('modal-body').innerHTML = buildCollectionForm(section, null);
+  document.getElementById('modal-overlay').style.display = 'flex';
+  // Default date = today
+  const dateEl = document.getElementById('mf-date');
+  if (dateEl && !dateEl.value) dateEl.value = todayISO();
+}
+
+function openEdit(section, idx) {
+  const cfg  = COLLECTION_CFG[section];
+  const item = APP.collectionCache[section][idx];
+  document.getElementById('modal-title').textContent = `Edit ${cfg.singular}`;
+  document.getElementById('modal-body').innerHTML = buildCollectionForm(section, item);
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+
+function buildCollectionForm(section, item) {
+  const cfg  = COLLECTION_CFG[section];
+  const isEdit = !!item;
+  let html = '';
+
+  cfg.fields.forEach(f => {
+    const val = item?.[f.key] ?? '';
+    const req = f.required ? ' *' : '';
+
+    if (f.type === 'textarea') {
+      html += `<div class="form-group">
+        <label for="mf-${f.key}">${esc(f.label)}${req}</label>
+        <textarea id="mf-${f.key}" rows="${f.rows||5}">${esc(val)}</textarea>
+        ${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ''}
+      </div>`;
+    } else if (f.type === 'select') {
+      const opts = f.options.map(o =>
+        `<option value="${esc(o)}"${val===o?' selected':''}>${esc(o)}</option>`
+      ).join('');
+      html += `<div class="form-group">
+        <label for="mf-${f.key}">${esc(f.label)}${req}</label>
+        <select id="mf-${f.key}">${opts}</select>
+      </div>`;
+    } else {
+      html += `<div class="form-group">
+        <label for="mf-${f.key}">${esc(f.label)}${req}</label>
+        <input type="${f.type}" id="mf-${f.key}" value="${esc(val)}" />
+        ${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ''}
+      </div>`;
+    }
+  });
+
+  const existingPath = item?._path || null;
+  html += `<div class="form-actions">
+    <button class="btn btn-green" id="modal-save-btn"
+      onclick="saveCollectionItem('${section}', ${JSON.stringify(existingPath)})">
+      💾 ${isEdit ? 'Update' : 'Add'}
+    </button>
+    <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    <span class="save-note">Deploys in ~60 sec</span>
+  </div>`;
+
+  return html;
+}
+
+async function saveCollectionItem(section, existingPath) {
+  const cfg  = COLLECTION_CFG[section];
+  const data = {};
+  cfg.fields.forEach(f => {
+    const el = document.getElementById(`mf-${f.key}`);
+    if (el) data[f.key] = el.value;
+  });
+
+  // Validate required
+  for (const f of cfg.fields) {
+    if (f.required && !data[f.key]?.trim()) {
+      toast(`❌ "${f.label}" is required`, 'error');
+      return;
+    }
+  }
+
+  const btn = document.getElementById('modal-save-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+  try {
+    const fileName = existingPath
+      ? existingPath.split('/').pop()
+      : cfg.mkFileName(data);
+
+    await apiPut(section, data, fileName);
+    closeModal();
+    toast('✅ Saved! Site will update in ~60 seconds.', 'success');
+    loadSection(section);
+  } catch (err) {
+    toast('❌ ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '💾 Save';
+  }
+}
+
+async function confirmDelete(section, idx) {
+  const item = APP.collectionCache[section][idx];
+  const label = COLLECTION_CFG[section].labelFn(item);
+  if (!confirm(`Delete "${label}"? This cannot be undone.`)) return;
+
+  if (!item._path) {
+    toast('❌ Cannot delete — file path unknown.', 'error');
+    return;
+  }
+
+  try {
+    await apiDelete(item._path);
+    toast('✅ Deleted.', 'success');
+    loadSection(section);
+  } catch (err) {
+    toast('❌ ' + err.message, 'error');
+  }
+}
+
+// ── Modal helpers ──────────────────────────────────
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+// ── Toast ──────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+
+// ── Utilities ──────────────────────────────────────
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function deepGet(obj, path) {
+  return path.split('.').reduce((o, k) => o?.[k], obj);
+}
+
+function deepSet(obj, path, val) {
+  const keys = path.split('.');
+  let cur = obj;
+  for (let i = 0; i < keys.length - 1; i++) {
+    if (!cur[keys[i]] || typeof cur[keys[i]] !== 'object') cur[keys[i]] = {};
+    cur = cur[keys[i]];
+  }
+  cur[keys[keys.length - 1]] = val;
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  try { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  catch { return d; }
+}
+
+function todayISO() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function mkFN(date, title, fallback) {
+  const d = date || todayISO();
+  const slug = (title || fallback).toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
+  return `${d}-${slug}.json`;
+}
+</script>
+</body>
+</html>
