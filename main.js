@@ -263,7 +263,8 @@
   (function () {
     var contentEls = document.querySelectorAll('[data-content]');
     var imgEls     = document.querySelectorAll('[data-img]');
-    if (!contentEls.length && !imgEls.length) return;
+    var bgEls      = document.querySelectorAll('[data-bg]');
+    if (!contentEls.length && !imgEls.length && !bgEls.length) return;
 
     var sections = {};
     contentEls.forEach(function (el) {
@@ -273,6 +274,11 @@
     });
     imgEls.forEach(function (el) {
       var attr = el.getAttribute('data-img');
+      var dot = attr.indexOf('.');
+      if (dot > 0) sections[attr.slice(0, dot)] = true;
+    });
+    bgEls.forEach(function (el) {
+      var attr = el.getAttribute('data-bg');
       var dot = attr.indexOf('.');
       if (dot > 0) sections[attr.slice(0, dot)] = true;
     });
@@ -304,6 +310,16 @@
             if (val && String(val).trim()) {
               el.src = val;
               el.style.display = '';
+            }
+          });
+          /* Update background-image for [data-bg] elements */
+          bgEls.forEach(function (el) {
+            var attr = el.getAttribute('data-bg');
+            if (attr.indexOf(section + '.') !== 0) return;
+            var key = attr.slice(section.length + 1);
+            var val = deepGet(data, key);
+            if (val && String(val).trim()) {
+              el.style.backgroundImage = 'url(' + val + ')';
             }
           });
           /* Also update hrefs for social/link elements */

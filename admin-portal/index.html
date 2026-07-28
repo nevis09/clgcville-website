@@ -918,6 +918,21 @@
     <div class="nav-item" data-s="giving" onclick="switchSection('giving')">
       <span class="nav-icon">💰</span> Online Giving
     </div>
+    <div class="nav-item" data-s="service_times" onclick="switchSection('service_times')">
+      <span class="nav-icon">🕐</span> Service Times
+    </div>
+    <div class="nav-item" data-s="calendar" onclick="switchSection('calendar')">
+      <span class="nav-icon">📅</span> Calendar Page
+    </div>
+    <div class="nav-item" data-s="prayer_request" onclick="switchSection('prayer_request')">
+      <span class="nav-icon">🙏</span> Prayer Request
+    </div>
+    <div class="nav-item" data-s="gallery_page" onclick="switchSection('gallery_page')">
+      <span class="nav-icon">🖼️</span> Gallery Page
+    </div>
+    <div class="nav-item" data-s="sermons_page" onclick="switchSection('sermons_page')">
+      <span class="nav-icon">🎙️</span> Sermons Page
+    </div>
   </aside>
 
   <!-- Main content -->
@@ -1148,7 +1163,7 @@ async function loadSection(section) {
   area.innerHTML = '<div class="loading-state"><div class="spinner-dark"></div> Loading…</div>';
 
   try {
-    if (['settings','home','pastor','mission','history','salvation','sbs','contact_page','live','giving'].includes(section)) {
+    if (['settings','home','pastor','mission','history','salvation','sbs','contact_page','live','giving','sermons_page','calendar','service_times','prayer_request','gallery_page'].includes(section)) {
       const data = await apiGet(section);
       renderForm(section, data);
     } else {
@@ -1242,6 +1257,18 @@ const FORM_CONFIGS = {
           { label: 'Subtext', key: 'newsletter_sub',     type: 'text', full: true },
         ],
       },
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background',         key: 'hero_image',    type: 'image' },
+          { label: 'Give / CTA Background',   key: 'cta_image',     type: 'image' },
+          { label: 'Welcome Section Photo',   key: 'welcome_image', type: 'image' },
+          { label: 'Gallery Preview — Photo 1', key: 'gallery_img1', type: 'image' },
+          { label: 'Gallery Preview — Photo 2', key: 'gallery_img2', type: 'image' },
+          { label: 'Gallery Preview — Photo 3', key: 'gallery_img3', type: 'image' },
+          { label: 'Give Section Photo',      key: 'give_image',    type: 'image' },
+        ],
+      },
     ],
   },
   pastor: {
@@ -1259,6 +1286,12 @@ const FORM_CONFIGS = {
           { label: 'Bio — Paragraph 3', key: 'bio3',  type: 'textarea', full: true },
           { label: 'Bio — Paragraph 4', key: 'bio4',  type: 'textarea', full: true },
           { label: 'Featured Quote',    key: 'quote', type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image', type: 'image' },
         ],
       },
     ],
@@ -1304,6 +1337,12 @@ const FORM_CONFIGS = {
           { label: 'Value 6 — Desc',   key: 'value6_desc',    type: 'textarea', full: true },
         ],
       },
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+        ],
+      },
     ],
   },
   history: {
@@ -1331,6 +1370,14 @@ const FORM_CONFIGS = {
           { label: 'Eyebrow',   key: 'closing_eyebrow', type: 'text' },
           { label: 'Heading',   key: 'closing_heading', type: 'text',     full: true },
           { label: 'Paragraph', key: 'closing_para',    type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background',   key: 'hero_image',  type: 'image' },
+          { label: 'Era 1 Photo',       key: 'era1_image',  type: 'image' },
+          { label: 'Era 2 Photo',       key: 'era2_image',  type: 'image' },
         ],
       },
     ],
@@ -1363,6 +1410,13 @@ const FORM_CONFIGS = {
           { label: 'Eyebrow',   key: 'decision_eyebrow', type: 'text' },
           { label: 'Heading',   key: 'decision_heading', type: 'text',     full: true },
           { label: 'Paragraph', key: 'decision_para',    type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image',   type: 'image' },
+          { label: 'Jesus / Artwork', key: 'jesus_image',  type: 'image' },
         ],
       },
     ],
@@ -1412,6 +1466,12 @@ const FORM_CONFIGS = {
           { label: 'Step 3',    key: 'step3_desc',     type: 'textarea', full: true },
         ],
       },
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+        ],
+      },
     ],
   },
   contact_page: {
@@ -1442,6 +1502,14 @@ const FORM_CONFIGS = {
           { label: 'Paragraph', key: 'cta_para',    type: 'textarea', full: true },
         ],
       },
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background',   key: 'hero_image',    type: 'image' },
+          { label: 'Join Us Background', key: 'cta_image',   type: 'image' },
+          { label: 'Prayer Photo',      key: 'prayer_image',  type: 'image' },
+        ],
+      },
     ],
   },
   live: {
@@ -1464,6 +1532,15 @@ const FORM_CONFIGS = {
           { label: 'Heading',   key: 'reminder_heading', type: 'text',     full: true },
           { label: 'Subtext',   key: 'reminder_sub',     type: 'text',     full: true },
           { label: 'Paragraph', key: 'reminder_para',    type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+          { label: 'Photo 1',         key: 'img1',       type: 'image' },
+          { label: 'Photo 2',         key: 'img2',       type: 'image' },
+          { label: 'Photo 3',         key: 'img3',       type: 'image' },
         ],
       },
     ],
@@ -1501,6 +1578,75 @@ const FORM_CONFIGS = {
           { label: 'Option 4 — Desc',   key: 'option4_desc',    type: 'textarea', full: true },
         ],
       },
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+        ],
+      },
+    ],
+  },
+  sermons_page: {
+    title: 'Sermons Page',
+    desc:  'Images on the Sermons page',
+    groups: [
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+        ],
+      },
+    ],
+  },
+  calendar: {
+    title: 'Calendar',
+    desc:  'Images on the Calendar page',
+    groups: [
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+        ],
+      },
+    ],
+  },
+  service_times: {
+    title: 'Service Times',
+    desc:  'Images on the Service Times page',
+    groups: [
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background',      key: 'hero_image',   type: 'image' },
+          { label: 'CTA Background',       key: 'cta_image',    type: 'image' },
+          { label: 'Service Photo',        key: 'service_img',  type: 'image' },
+        ],
+      },
+    ],
+  },
+  prayer_request: {
+    title: 'Prayer Request',
+    desc:  'Images on the Prayer Request page',
+    groups: [
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image',   type: 'image' },
+          { label: 'Cross / Church Photo', key: 'cross_image', type: 'image' },
+        ],
+      },
+    ],
+  },
+  gallery_page: {
+    title: 'Gallery Page',
+    desc:  'Images on the Gallery page',
+    groups: [
+      {
+        label: 'Page Images',
+        fields: [
+          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+        ],
+      },
     ],
   },
 };
@@ -1514,9 +1660,14 @@ const SECTION_URLS = {
   sbs:          '/school-of-bible-studies/',
   contact_page: '/contact/',
   live:         '/live/',
-  giving:       '/online-giving/',
-  sermons:      '/sermons/',
-  announcements:'/announcements/',
+  giving:        '/online-giving/',
+  sermons:       '/sermons/',
+  announcements: '/announcements/',
+  sermons_page:  '/sermons/',
+  calendar:      '/calendar/',
+  service_times: '/service-times/',
+  prayer_request:'/prayer-request/',
+  gallery_page:  '/gallery/',
 };
 
 function renderForm(section, data) {
@@ -2480,6 +2631,10 @@ function syncPreviewContent() {
         doc.querySelectorAll(`[data-img="${section}.${f.key}"]`).forEach(img => {
           img.src = val;
           img.style.display = '';
+        });
+        // Update data-bg elements (background-image) in the preview iframe
+        doc.querySelectorAll(`[data-bg="${section}.${f.key}"]`).forEach(el => {
+          el.style.backgroundImage = 'url(' + val + ')';
         });
         // Also update the thumbnail in the admin form
         const thumb = document.getElementById(`ff-${f.key.replace(/\./g, '-')}-preview`);
