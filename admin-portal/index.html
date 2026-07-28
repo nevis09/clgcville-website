@@ -1628,16 +1628,17 @@ function initModalFields(section) {
       const hidden  = document.getElementById(`mf-${f.key}`);
       if (!picker || !hidden) return;
 
-      function syncLinkPreview(val) {
-        const wrap    = document.getElementById('modal-link-preview-wrap');
-        const urlSpan = document.getElementById('modal-link-preview-url');
-        if (!wrap) return;
-        if (val) {
-          wrap.style.display = '';
-          if (urlSpan) { urlSpan.textContent = val; urlSpan.dataset.url = val; }
-        } else {
-          wrap.style.display = 'none';
-        }
+      function openLinkedPagePreview(url) {
+        if (!url) return;
+        const drawer = document.getElementById('preview-drawer');
+        const iframe  = document.getElementById('preview-iframe');
+        const barUrl  = document.getElementById('preview-bar-url');
+        if (!drawer || !iframe) return;
+        _preview.section = null;
+        if (barUrl) barUrl.textContent = url;
+        drawer.classList.add('open');
+        iframe.onload = null;
+        iframe.src = url;
       }
 
       picker.querySelectorAll('.page-tile').forEach(tile => {
@@ -1645,12 +1646,12 @@ function initModalFields(section) {
           picker.querySelectorAll('.page-tile').forEach(t => t.classList.remove('active'));
           tile.classList.add('active');
           hidden.value = tile.dataset.val;
-          syncLinkPreview(tile.dataset.val);
+          openLinkedPagePreview(tile.dataset.val);
         });
       });
 
-      // Initialise on open (editing an existing item that already has a link)
-      syncLinkPreview(hidden.value);
+      // Auto-open preview when editing an item that already has a link
+      if (hidden.value) openLinkedPagePreview(hidden.value);
     }
 
     // Image preview: show thumbnail as URL is typed
@@ -1740,17 +1741,7 @@ function buildCollectionForm(section, item) {
   const existingPath = item?._path || null;
   const modalPageUrl = SECTION_URLS[section];
   const hasLinkField = COLLECTION_CFG[section]?.fields.some(f => f.type === 'page-picker');
-  if (hasLinkField) {
-    // Shown/hidden dynamically by initModalFields once a page is selected
-    const initUrl = item?.link || '';
-    html += `<div id="modal-link-preview-wrap" style="margin-bottom:10px;${initUrl ? '' : 'display:none;'}">
-      <button class="btn btn-outline btn-sm" onclick="openModalLinkPreview()">
-        👁 Preview selected page
-      </button>
-      <span id="modal-link-preview-url" data-url="${esc(initUrl)}"
-            style="font-size:11px;color:var(--text-muted);margin-left:8px;">${esc(initUrl)}</span>
-    </div>`;
-  } else if (modalPageUrl) {
+  if (!hasLinkField && modalPageUrl) {
     html += `<div style="margin-bottom:10px;">
       <a href="${modalPageUrl}" target="_blank" rel="noopener"
          style="font-size:12px;color:var(--primary);text-decoration:none;display:inline-flex;align-items:center;gap:5px;opacity:0.8;">
@@ -1884,21 +1875,6 @@ function mkFN(date, title, fallback) {
 
 // ── Page preview drawer ────────────────────────────
 const _preview = { section: null, labelsOn: true };
-
-function openModalLinkPreview() {
-  const urlSpan = document.getElementById('modal-link-preview-url');
-  const url = urlSpan && urlSpan.dataset.url;
-  if (!url) return;
-  const drawer = document.getElementById('preview-drawer');
-  const iframe  = document.getElementById('preview-iframe');
-  const barUrl  = document.getElementById('preview-bar-url');
-  if (!drawer || !iframe) return;
-  _preview.section = null; // linked page — no field annotations
-  if (barUrl) barUrl.textContent = url;
-  drawer.classList.add('open');
-  iframe.onload = null;
-  iframe.src = url;
-}
 
 function openPreview(section) {
   const url = SECTION_URLS[section];
