@@ -754,12 +754,6 @@
     }
     .pimg-card-footer { padding: 7px 10px 6px; }
     .pimg-card-label { font-size: 12px; font-weight: 600; color: var(--text); display: block; }
-    .pimg-url-row { padding: 0 8px 8px; }
-    .pimg-url-input {
-      width: 100%; font-size: 11px; padding: 5px 8px;
-      border: 1px solid var(--border); border-radius: 5px;
-      background: var(--input-bg, #fff); color: var(--text);
-    }
     /* ── GALLERY PICKER MODAL ──────────────── */
     #gallery-picker-modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.78);
@@ -1896,16 +1890,11 @@ function renderForm(section, data) {
             <div class="pimg-card-overlay">
               <button type="button" title="Upload" onclick="event.stopPropagation();triggerPageImgUpload('${f.key}')">📁</button>
               <button type="button" title="Gallery" onclick="event.stopPropagation();openGalleryPicker('${f.key}')">📂</button>
-              <button type="button" title="Paste URL" onclick="event.stopPropagation();togglePimgUrl('${f.key}')">🔗</button>
               <button type="button" title="Download" onclick="event.stopPropagation();downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">⬇</button>
             </div>
           </div>
           <div class="pimg-card-footer">
             <span class="pimg-card-label">${esc(f.label)}</span>
-          </div>
-          <div class="pimg-url-row" id="ff-${safeKey}-urlrow" style="display:none">
-            <input type="url" class="pimg-url-input" id="ff-${safeKey}" value="${esc(val)}"
-                   placeholder="Paste image URL…">
           </div>
         </div>`;
       });
@@ -1934,13 +1923,9 @@ function renderForm(section, data) {
           const safeKey    = f.key.replace(/\./g, '-');
           const previewSrc = val || f.defaultSrc || '';
           const isDefault  = !val && !!f.defaultSrc;
-          const placeholder = f.defaultSrc
-            ? 'Using page default — paste URL, upload, or pick from gallery to override'
-            : 'Paste image URL, upload from computer, or pick from gallery…';
           html += `<div class="form-group full">
             <label for="ff-${safeKey}">${esc(f.label)}</label>
             <div class="url-upload-row">
-              <input type="url" id="ff-${safeKey}" value="${esc(val)}" placeholder="${placeholder}" />
               <button type="button" class="btn btn-outline btn-sm" id="ff-${safeKey}-upload-btn"
                       onclick="triggerPageImgUpload('${f.key}')">📁 Upload</button>
               <button type="button" class="btn btn-outline btn-sm"
@@ -1948,6 +1933,7 @@ function renderForm(section, data) {
             </div>
             <input type="file" id="ff-${safeKey}-file" accept="image/*,.heic,.heif"
                    style="display:none" onchange="handlePageImgUpload(this,'${f.key}')">
+            <input type="hidden" id="ff-${safeKey}" value="${esc(val)}">
             ${previewSrc
               ? `<div class="page-img-preview-wrap" id="ff-${safeKey}-wrap">
                    <img id="ff-${safeKey}-preview" src="${esc(previewSrc)}" alt="Preview">
@@ -2625,19 +2611,6 @@ async function handlePageImgUpload(input, key) {
   } finally {
     if (btn) { btn.disabled = false; btn.innerHTML = '📁 Upload'; }
     input.value = '';
-  }
-}
-
-// ── Page image grid helpers ────────────────────────────────────────
-function togglePimgUrl(key) {
-  const safeKey = key.replace(/\./g, '-');
-  const row = document.getElementById(`ff-${safeKey}-urlrow`);
-  if (!row) return;
-  const opening = row.style.display === 'none';
-  row.style.display = opening ? 'block' : 'none';
-  if (opening) {
-    const inp = document.getElementById(`ff-${safeKey}`);
-    if (inp) { inp.focus(); inp.select(); }
   }
 }
 
