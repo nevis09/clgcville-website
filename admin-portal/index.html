@@ -588,8 +588,17 @@
 
     /* ── IMAGE PREVIEW ──────────────────────── */
     .img-preview-wrap { margin-top: 8px; border-radius: 9px; overflow: hidden; background: var(--surface-alt); border: 1px solid var(--border); display: none; }
-    .img-preview-wrap img { width: 100%; max-height: 180px; object-fit: cover; display: block; }
     .img-preview-wrap .img-preview-err { padding: 12px; font-size: 12px; color: var(--text-muted); text-align: center; display: none; }
+    .focal-point-wrap { position: relative; cursor: crosshair; user-select: none; }
+    .focal-point-wrap img { width: 100%; max-height: 220px; object-fit: cover; display: block; pointer-events: none; }
+    .focal-dot {
+      position: absolute; width: 20px; height: 20px;
+      border: 2.5px solid #fff; border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.55), 0 0 12px rgba(0,0,0,0.4);
+      transform: translate(-50%,-50%); pointer-events: none;
+      transition: left 0.06s, top 0.06s;
+    }
+    .focal-hint { font-size: 11px; color: var(--text-muted); padding: 5px 10px; background: var(--surface-alt); text-align: center; border-top: 1px solid var(--border); }
 
     /* ── PAGE PICKER ────────────────────────── */
     .page-picker { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
@@ -1549,6 +1558,8 @@ const COLLECTION_CFG = {
         ],
       },
       { label: 'Date Added', key: 'date', type: 'date' },
+      { key: 'x_pos', type: 'hidden', defaultVal: '50' },
+      { key: 'y_pos', type: 'hidden', defaultVal: '50' },
     ],
     mkFileName: i => mkFN(i.date, i.alt || 'photo', 'photo'),
   },
@@ -1654,13 +1665,47 @@ function initModalFields(section) {
       if (hidden.value) openLinkedPagePreview(hidden.value);
     }
 
-    // Image preview: show thumbnail as URL is typed
+    // Image preview + focal-point picker
     if (f.previewImg) {
-      const input   = document.getElementById(`mf-${f.key}`);
-      const wrap    = document.getElementById(`mf-${f.key}-preview-wrap`);
-      const img     = document.getElementById(`mf-${f.key}-preview`);
-      const errMsg  = wrap && wrap.querySelector('.img-preview-err');
+      const input      = document.getElementById(`mf-${f.key}`);
+      const wrap       = document.getElementById(`mf-${f.key}-preview-wrap`);
+      const img        = document.getElementById(`mf-${f.key}-preview`);
+      const errMsg     = wrap && wrap.querySelector('.img-preview-err');
+      const focalPick  = document.getElementById('focal-picker');
+      const focalDot   = document.getElementById('focal-dot');
+      const xInput     = document.getElementById('mf-x_pos');
+      const yInput     = document.getElementById('mf-y_pos');
       if (!input || !wrap || !img) return;
+
+      function setFocal(xPct, yPct) {
+        xPct = Math.max(0, Math.min(100, Math.round(xPct)));
+        yPct = Math.max(0, Math.min(100, Math.round(yPct)));
+        if (focalDot) { focalDot.style.left = xPct + '%'; focalDot.style.top = yPct + '%'; }
+        img.style.objectPosition = xPct + '% ' + yPct + '%';
+        if (xInput) xInput.value = xPct;
+        if (yInput) yInput.value = yPct;
+      }
+
+      let isDragging = false;
+      function focalFromEvent(e) {
+        const rect = focalPick.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        setFocal(
+          (clientX - rect.left) / rect.width  * 100,
+          (clientY - rect.top)  / rect.height * 100
+        );
+      }
+
+      if (focalPick) {
+        focalPick.addEventListener('mousedown',  e => { isDragging = true; focalFromEvent(e); });
+        focalPick.addEventListener('mousemove',  e => { if (isDragging) focalFromEvent(e); });
+        focalPick.addEventListener('mouseup',    () => isDragging = false);
+        focalPick.addEventListener('mouseleave', () => isDragging = false);
+        focalPick.addEventListener('touchstart', e => { isDragging = true; focalFromEvent(e); }, { passive: true });
+        focalPick.addEventListener('touchmove',  e => { if (isDragging) focalFromEvent(e); }, { passive: true });
+        focalPick.addEventListener('touchend',   () => isDragging = false);
+      }
 
       function updatePreview() {
         const url = input.value.trim();
@@ -1671,17 +1716,11 @@ function initModalFields(section) {
         img.src = url;
       }
 
-      img.addEventListener('error', () => {
-        img.style.display = 'none';
-        if (errMsg) errMsg.style.display = 'block';
-      });
-      img.addEventListener('load', () => {
-        img.style.display = 'block';
-        if (errMsg) errMsg.style.display = 'none';
-      });
+      img.addEventListener('error', () => { img.style.display = 'none'; if (errMsg) errMsg.style.display = 'block'; });
+      img.addEventListener('load',  () => { img.style.display = 'block'; if (errMsg) errMsg.style.display = 'none'; });
 
       input.addEventListener('input', updatePreview);
-      updatePreview(); // show immediately if editing an existing item
+      updatePreview();
     }
   });
 }
@@ -1722,10 +1761,19 @@ function buildCollectionForm(section, item) {
         <div class="page-picker" id="pp-${f.key}">${tiles}</div>
         <input type="hidden" id="mf-${f.key}" value="${esc(val)}">
       </div>`;
+    } else if (f.type === 'hidden') {
+      html += `<input type="hidden" id="mf-${f.key}" value="${esc(val !== '' ? val : (f.defaultVal || ''))}">`;
     } else {
+      const initX = item?.x_pos ?? 50;
+      const initY = item?.y_pos ?? 50;
       const previewHtml = f.previewImg
         ? `<div class="img-preview-wrap" id="mf-${f.key}-preview-wrap">
-            <img id="mf-${f.key}-preview" src="${esc(val)}" alt="Preview">
+            <div class="focal-point-wrap" id="focal-picker">
+              <img id="mf-${f.key}-preview" src="${esc(val)}" alt="Preview"
+                   style="object-position:${initX}% ${initY}%">
+              <div class="focal-dot" id="focal-dot" style="left:${initX}%;top:${initY}%"></div>
+            </div>
+            <div class="focal-hint">👆 Click image to set crop focus — drag to reposition</div>
             <div class="img-preview-err">Image could not be loaded — check the URL</div>
            </div>`
         : '';

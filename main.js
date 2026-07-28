@@ -238,8 +238,9 @@
 
           grid.innerHTML = filtered.map(function (item) {
             var linkAttr = item.link ? ' data-link="' + gesc(item.link) + '"' : '';
+            var posStyle = 'object-position:' + (item.x_pos || 50) + '% ' + (item.y_pos || 50) + '%';
             return '<figure data-category="' + gesc(item.category || 'all') + '"' + linkAttr + '>' +
-              '<img src="' + gesc(item.url || '') + '" alt="' + gesc(item.alt || '') + '" loading="lazy">' +
+              '<img src="' + gesc(item.url || '') + '" alt="' + gesc(item.alt || '') + '" loading="lazy" style="' + posStyle + '">' +
               '</figure>';
           }).join('');
         }
