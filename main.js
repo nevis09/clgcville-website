@@ -259,14 +259,20 @@
       .catch(function () {});
   }());
 
-  /* ---------- Generic content hydration ---------- */
+  /* ---------- Generic content + image hydration ---------- */
   (function () {
     var contentEls = document.querySelectorAll('[data-content]');
-    if (!contentEls.length) return;
+    var imgEls     = document.querySelectorAll('[data-img]');
+    if (!contentEls.length && !imgEls.length) return;
 
     var sections = {};
     contentEls.forEach(function (el) {
       var attr = el.getAttribute('data-content');
+      var dot = attr.indexOf('.');
+      if (dot > 0) sections[attr.slice(0, dot)] = true;
+    });
+    imgEls.forEach(function (el) {
+      var attr = el.getAttribute('data-img');
       var dot = attr.indexOf('.');
       if (dot > 0) sections[attr.slice(0, dot)] = true;
     });
@@ -287,6 +293,17 @@
             var val = deepGet(data, key);
             if (val !== undefined && val !== null && String(val).trim() !== '') {
               el.textContent = val;
+            }
+          });
+          /* Update src for image elements */
+          imgEls.forEach(function (el) {
+            var attr = el.getAttribute('data-img');
+            if (attr.indexOf(section + '.') !== 0) return;
+            var key = attr.slice(section.length + 1);
+            var val = deepGet(data, key);
+            if (val && String(val).trim()) {
+              el.src = val;
+              el.style.display = '';
             }
           });
           /* Also update hrefs for social/link elements */

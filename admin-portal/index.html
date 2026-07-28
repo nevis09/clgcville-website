@@ -1211,6 +1211,7 @@ const FORM_CONFIGS = {
           { label: 'Heading',     key: 'welcome_heading', type: 'text',     full: true },
           { label: 'Paragraph 1', key: 'welcome_para1',   type: 'textarea', full: true },
           { label: 'Paragraph 2', key: 'welcome_para2',   type: 'textarea', full: true },
+          { label: 'Welcome Photo', key: 'welcome_image', type: 'image' },
         ],
       },
       {
@@ -1250,6 +1251,7 @@ const FORM_CONFIGS = {
       {
         label: 'Pastor Information',
         fields: [
+          { label: 'Pastor Photo',      key: 'photo', type: 'image' },
           { label: 'Full Name',         key: 'name',  type: 'text' },
           { label: 'Title / Role',      key: 'title', type: 'text' },
           { label: 'Bio — Paragraph 1', key: 'bio1',  type: 'textarea', full: true },
@@ -1276,10 +1278,11 @@ const FORM_CONFIGS = {
       {
         label: 'Vision',
         fields: [
-          { label: 'Eyebrow',     key: 'vision_eyebrow', type: 'text' },
-          { label: 'Heading',     key: 'vision_heading', type: 'text',     full: true },
-          { label: 'Paragraph 1', key: 'vision_para1',   type: 'textarea', full: true },
-          { label: 'Paragraph 2', key: 'vision_para2',   type: 'textarea', full: true },
+          { label: 'Eyebrow',     key: 'vision_eyebrow',   type: 'text' },
+          { label: 'Heading',     key: 'vision_heading',   type: 'text',     full: true },
+          { label: 'Paragraph 1', key: 'vision_para1',     type: 'textarea', full: true },
+          { label: 'Paragraph 2', key: 'vision_para2',     type: 'textarea', full: true },
+          { label: 'Vision Photo', key: 'overview_image',  type: 'image' },
         ],
       },
       {
@@ -1371,10 +1374,11 @@ const FORM_CONFIGS = {
       {
         label: 'Overview',
         fields: [
-          { label: 'Eyebrow',     key: 'overview_eyebrow', type: 'text' },
-          { label: 'Heading',     key: 'overview_heading', type: 'text',     full: true },
-          { label: 'Paragraph 1', key: 'overview_para1',   type: 'textarea', full: true },
-          { label: 'Paragraph 2', key: 'overview_para2',   type: 'textarea', full: true },
+          { label: 'Eyebrow',          key: 'overview_eyebrow', type: 'text' },
+          { label: 'Heading',          key: 'overview_heading', type: 'text',     full: true },
+          { label: 'Paragraph 1',      key: 'overview_para1',   type: 'textarea', full: true },
+          { label: 'Paragraph 2',      key: 'overview_para2',   type: 'textarea', full: true },
+          { label: 'Overview Photo',   key: 'overview_image',   type: 'image' },
         ],
       },
       {
@@ -1538,6 +1542,20 @@ function renderForm(section, data) {
           <label for="${id}">${esc(f.label)}</label>
           <textarea id="${id}" rows="4">${esc(val)}</textarea>
         </div>`;
+      } else if (f.type === 'image') {
+        const safeKey = f.key.replace(/\./g, '-');
+        html += `<div class="form-group full">
+          <label for="ff-${safeKey}">${esc(f.label)}</label>
+          <div class="url-upload-row">
+            <input type="url" id="ff-${safeKey}" value="${esc(val)}" placeholder="Paste image URL or upload from computer…" />
+            <button type="button" class="btn btn-outline btn-sm" id="ff-${safeKey}-upload-btn"
+                    onclick="triggerPageImgUpload('${f.key}')">📁 Upload</button>
+          </div>
+          <input type="file" id="ff-${safeKey}-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                 style="display:none" onchange="handlePageImgUpload(this,'${f.key}')">
+          <img id="ff-${safeKey}-preview" src="${esc(val)}" alt="Preview"
+               style="margin-top:8px;max-width:220px;max-height:160px;border-radius:8px;object-fit:cover;${val ? '' : 'display:none;'}">
+        </div>`;
       } else {
         html += `<div class="form-group ${cls}">
           <label for="${id}">${esc(f.label)}</label>
@@ -1596,13 +1614,9 @@ function buildFormData(section, cfg) {
     });
   });
 
-  // Preserve non-editable fields that are in the existing data
-  if (section === 'home') {
-    obj.hero_image    = obj.hero_image    || '/assets/images/hero-bg.jpg';
-    obj.welcome_image = obj.welcome_image || '/assets/images/welcome.jpg';
-  }
-  if (section === 'pastor') {
-    obj.photo = obj.photo || '/assets/images/pastor-placeholder.jpg';
+  // hero_image is not in the form; preserve any stored value or leave blank
+  if (section === 'home' && !obj.hero_image) {
+    obj.hero_image = '';
   }
 
   return obj;
@@ -2183,6 +2197,49 @@ async function handleImgUpload(input) {
   }
 }
 
+// ── Page-section image upload (for FORM_CONFIGS pages) ────────────
+function triggerPageImgUpload(key) {
+  const safeKey = key.replace(/\./g, '-');
+  document.getElementById(`ff-${safeKey}-file`)?.click();
+}
+
+async function handlePageImgUpload(input, key) {
+  const safeKey = key.replace(/\./g, '-');
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const MAX = 8 * 1024 * 1024;
+  if (file.size > MAX) { toast('File too large — max 8 MB', 'error'); return; }
+
+  const urlInput = document.getElementById(`ff-${safeKey}`);
+  const preview  = document.getElementById(`ff-${safeKey}-preview`);
+  const btn      = document.getElementById(`ff-${safeKey}-upload-btn`);
+
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+
+  try {
+    const fd = new FormData();
+    fd.append('token', APP.token);
+    fd.append('file', file);
+
+    const res  = await fetch('/api/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+    if (urlInput) urlInput.value = data.path;
+    if (preview) {
+      preview.src          = data.rawUrl;
+      preview.style.display = 'block';
+    }
+    toast('Image uploaded — will be live in ~60 seconds', 'success');
+  } catch (err) {
+    toast('Upload failed: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '📁 Upload'; }
+    input.value = '';
+  }
+}
+
 // ── Focal-Point Editor ─────────────────────────────────────────────
 const _fe = { x: 50, y: 50, dragging: false };
 
@@ -2418,9 +2475,20 @@ function syncPreviewContent() {
       if (!el) return;
       const val = el.value.trim();
       if (!val) return;
-      doc.querySelectorAll(`[data-content="${section}.${f.key}"]`).forEach(t => {
-        t.textContent = val;
-      });
+      if (f.type === 'image') {
+        // Update data-img elements in the preview iframe
+        doc.querySelectorAll(`[data-img="${section}.${f.key}"]`).forEach(img => {
+          img.src = val;
+          img.style.display = '';
+        });
+        // Also update the thumbnail in the admin form
+        const thumb = document.getElementById(`ff-${f.key.replace(/\./g, '-')}-preview`);
+        if (thumb) { thumb.src = val; thumb.style.display = 'block'; }
+      } else {
+        doc.querySelectorAll(`[data-content="${section}.${f.key}"]`).forEach(t => {
+          t.textContent = val;
+        });
+      }
     });
   });
 }
