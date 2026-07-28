@@ -12,6 +12,57 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="../styles.css">
+<style>
+.prayer-cats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 24px;
+  margin-top: 10px;
+}
+.prayer-cat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.prayer-cat-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: var(--card-bg, #fff);
+  cursor: pointer;
+  position: relative;
+  transition: border-color .15s, background .15s;
+}
+.prayer-cat-item input[type="checkbox"]:checked {
+  background: var(--accent, #b59a5e);
+  border-color: var(--accent, #b59a5e);
+}
+.prayer-cat-item input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 5px;
+  width: 6px; height: 11px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+.prayer-cat-item label {
+  margin: 0;
+  font-size: .95rem;
+  cursor: pointer;
+  color: inherit;
+}
+@media (max-width: 500px) {
+  .prayer-cats { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
 
@@ -101,8 +152,61 @@
             <input type="text" id="pr-name" name="name" class="form-control" placeholder="Your name">
           </div>
           <div class="form-group">
+            <label for="pr-phone">Phone <span style="opacity:.6;font-weight:400;">(optional)</span></label>
+            <input type="tel" id="pr-phone" name="phone" class="form-control" placeholder="(555) 555-5555">
+          </div>
+          <div class="form-group">
             <label for="pr-email">Email <span style="opacity:.6;font-weight:400;">(optional)</span></label>
             <input type="email" id="pr-email" name="email" class="form-control" placeholder="you@example.com">
+          </div>
+          <div class="form-group">
+            <label>Please Pray For <span style="opacity:.6;font-weight:400;">(optional)</span></label>
+            <div class="prayer-cats">
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Traveling Mercies">
+                <span>Traveling Mercies</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Healing">
+                <span>Healing</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Divine Intervention/Favor">
+                <span>Divine Intervention/Favor</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Immigration Breakthrough">
+                <span>Immigration Breakthrough</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Financial Breakthrough">
+                <span>Financial Breakthrough</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Employment Breakthrough">
+                <span>Employment Breakthrough</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Spiritual Breakthrough">
+                <span>Spiritual Breakthrough</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Marital Breakthrough">
+                <span>Marital Breakthrough</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Divine Protection">
+                <span>Divine Protection</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Salvation for Family/Friends">
+                <span>Salvation for Family/Friends</span>
+              </label>
+              <label class="prayer-cat-item">
+                <input type="checkbox" name="pray_for[]" value="Other">
+                <span>Other</span>
+              </label>
+            </div>
           </div>
           <div class="form-group">
             <label for="pr-request">Prayer Request</label>
