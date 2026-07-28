@@ -1890,7 +1890,7 @@ function renderForm(section, data) {
             <div class="pimg-card-overlay">
               <button type="button" title="Upload" onclick="event.stopPropagation();triggerPageImgUpload('${f.key}')">📁</button>
               <button type="button" title="Gallery" onclick="event.stopPropagation();openGalleryPicker('${f.key}')">📂</button>
-              <button type="button" title="Download" onclick="event.stopPropagation();downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">⬇</button>
+              <button type="button" title="Download" onclick="event.stopPropagation();downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">💾</button>
             </div>
           </div>
           <div class="pimg-card-footer">
@@ -1939,7 +1939,7 @@ function renderForm(section, data) {
                    <img id="ff-${safeKey}-preview" src="${esc(previewSrc)}" alt="Preview">
                    ${isDefault ? `<span class="page-img-default-badge" id="ff-${safeKey}-badge">Page default</span>` : ''}
                    <button type="button" class="page-img-dl-btn" title="Download image"
-                           onclick="downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">⬇</button>
+                           onclick="downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">💾</button>
                  </div>`
               : `<img id="ff-${safeKey}-preview" src="" alt="Preview" style="display:none">`}
           </div>`;
@@ -2133,7 +2133,7 @@ function renderCollection(section, items) {
             ${item.url ? `<img src="${esc(item.url)}" alt="${esc(item.alt||'')}" loading="lazy">` : ''}
             <span class="gallery-vis-pill ${visClass}">${visLabel}</span>
             <div class="gallery-card-overlay">
-              ${item.url ? `<button title="Download" onclick="event.stopPropagation();downloadImage('${esc(item.url)}','${esc(item.alt||item.category||'')}')">⬇</button>` : ''}
+              ${item.url ? `<button title="Download" onclick="event.stopPropagation();downloadImage('${esc(item.url)}','${esc(item.alt||item.category||'')}')">💾</button>` : ''}
               <button title="Edit" onclick="event.stopPropagation();openEdit('${section}',${idx})">✏️</button>
               <button title="Delete" class="del-btn" onclick="event.stopPropagation();confirmDelete('${section}',${idx})">🗑</button>
             </div>
