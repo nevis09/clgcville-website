@@ -825,7 +825,10 @@
       <span class="preview-bar-label">Previewing</span>
       <span class="preview-bar-url" id="preview-bar-url"></span>
     </div>
-    <button class="btn btn-ghost btn-sm" onclick="closePreview()">✕ Close</button>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button id="label-toggle-btn" class="btn btn-ghost btn-sm" onclick="togglePreviewLabels()" title="Show/hide field labels on the page">🏷 Labels on</button>
+      <button class="btn btn-ghost btn-sm" onclick="closePreview()">✕ Close</button>
+    </div>
   </div>
   <iframe id="preview-iframe" title="Page preview"></iframe>
 </div>
@@ -1397,9 +1400,13 @@ function renderForm(section, data) {
 
   document.getElementById('content-area').innerHTML = html;
 
-  // Wire every field to sync the preview drawer in real time
+  // Wire every field to sync preview and scroll to its position on focus
   document.querySelectorAll('#content-area input, #content-area textarea').forEach(el => {
     el.addEventListener('input', syncPreviewContent);
+    el.addEventListener('focus', () => {
+      const rawKey = el.id.replace(/^ff-/, '').replace(/-/g, '.');
+      scrollPreviewTo(APP.section, rawKey);
+    });
   });
 }
 
@@ -1849,6 +1856,8 @@ function mkFN(date, title, fallback) {
 }
 
 // ── Page preview drawer ────────────────────────────
+const _preview = { section: null, labelsOn: true };
+
 function openPreview(section) {
   const url = SECTION_URLS[section];
   if (!url) return;
@@ -1856,13 +1865,18 @@ function openPreview(section) {
   const iframe  = document.getElementById('preview-iframe');
   const urlEl   = document.getElementById('preview-bar-url');
   if (!drawer || !iframe) return;
+  _preview.section = section;
   if (urlEl) urlEl.textContent = url;
   drawer.classList.add('open');
   iframe.src = url;
   iframe.onload = () => {
     syncPreviewContent();
-    // Re-sync after the page's own API fetch has hydrated the DOM
-    setTimeout(syncPreviewContent, 1800);
+    if (_preview.labelsOn) annotatePreview(section);
+    // Re-run after page's API fetch hydrates content
+    setTimeout(() => {
+      syncPreviewContent();
+      if (_preview.labelsOn) annotatePreview(section);
+    }, 1800);
   };
 }
 
@@ -1871,6 +1885,120 @@ function closePreview() {
   const iframe  = document.getElementById('preview-iframe');
   if (drawer) drawer.classList.remove('open');
   if (iframe) { iframe.onload = null; iframe.src = 'about:blank'; }
+  _preview.section = null;
+}
+
+function togglePreviewLabels() {
+  _preview.labelsOn = !_preview.labelsOn;
+  const btn = document.getElementById('label-toggle-btn');
+  if (btn) btn.textContent = _preview.labelsOn ? '🏷 Labels on' : '🏷 Labels off';
+  if (_preview.labelsOn) {
+    annotatePreview(_preview.section);
+  } else {
+    removeAnnotations();
+  }
+}
+
+function removeAnnotations() {
+  const iframe = document.getElementById('preview-iframe');
+  if (!iframe || !iframe.contentDocument) return;
+  const doc = iframe.contentDocument;
+  const layer = doc.getElementById('admin-ann-layer');
+  if (layer) layer.remove();
+  const sty = doc.getElementById('admin-ann-style');
+  if (sty) sty.remove();
+  doc.querySelectorAll('.admin-annotated').forEach(el => el.classList.remove('admin-annotated'));
+}
+
+function annotatePreview(section) {
+  const iframe = document.getElementById('preview-iframe');
+  if (!iframe || !iframe.contentDocument) return;
+  const cfg = FORM_CONFIGS[section];
+  if (!cfg) return;
+  const doc = iframe.contentDocument;
+
+  // Build lookup: "section.key" → human-readable label
+  const fieldLabels = {};
+  cfg.groups.forEach(g => g.fields.forEach(f => {
+    fieldLabels[`${section}.${f.key}`] = f.label;
+  }));
+
+  // Remove any previous annotations
+  const oldLayer = doc.getElementById('admin-ann-layer');
+  if (oldLayer) oldLayer.remove();
+  const oldSty = doc.getElementById('admin-ann-style');
+  if (oldSty) oldSty.remove();
+  doc.querySelectorAll('.admin-annotated').forEach(el => el.classList.remove('admin-annotated'));
+
+  // Inject annotation styles into the iframe
+  const sty = doc.createElement('style');
+  sty.id = 'admin-ann-style';
+  sty.textContent = `
+    .admin-annotated {
+      outline: 2px solid rgba(201,168,76,0.65) !important;
+      outline-offset: 2px !important;
+    }
+    #admin-ann-layer {
+      position: absolute; top: 0; left: 0;
+      pointer-events: none; z-index: 99999; width: 100%;
+    }
+    .ann-tag {
+      position: absolute;
+      background: #C9A84C; color: #0D1F17;
+      font: 700 9px/1 Inter,sans-serif;
+      padding: 3px 7px; border-radius: 3px;
+      white-space: nowrap; letter-spacing: 0.3px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    }
+    .admin-pulse {
+      animation: admin-pulse-kf 1.4s ease-in-out 2;
+    }
+    @keyframes admin-pulse-kf {
+      0%   { outline-color: rgba(201,168,76,0.3); }
+      50%  { outline-color: rgba(201,168,76,1); box-shadow: 0 0 0 6px rgba(201,168,76,0.25); }
+      100% { outline-color: rgba(201,168,76,0.3); }
+    }
+  `;
+  doc.head.appendChild(sty);
+
+  // Layer must be inside body for absolute offsets to work
+  doc.body.style.position = 'relative';
+  const layer = doc.createElement('div');
+  layer.id = 'admin-ann-layer';
+  doc.body.appendChild(layer);
+
+  function getDocOffset(el) {
+    let top = 0, left = 0, cur = el;
+    while (cur) { top += cur.offsetTop || 0; left += cur.offsetLeft || 0; cur = cur.offsetParent; }
+    return { top, left };
+  }
+
+  doc.querySelectorAll('[data-content]').forEach(el => {
+    const key   = el.getAttribute('data-content');
+    const label = fieldLabels[key];
+    if (!label) return;
+    el.classList.add('admin-annotated');
+    const { top, left } = getDocOffset(el);
+    const tag = doc.createElement('div');
+    tag.className = 'ann-tag';
+    tag.textContent = label;
+    tag.style.top  = Math.max(0, top - 22) + 'px';
+    tag.style.left = left + 'px';
+    layer.appendChild(tag);
+  });
+}
+
+function scrollPreviewTo(section, key) {
+  const iframe = document.getElementById('preview-iframe');
+  if (!iframe || !iframe.contentDocument) return;
+  const doc = iframe.contentDocument;
+  const els = doc.querySelectorAll(`[data-content="${section}.${key}"]`);
+  if (!els.length) return;
+  const el = els[0];
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.remove('admin-pulse');
+  void el.offsetWidth; // force reflow to restart animation
+  el.classList.add('admin-pulse');
 }
 
 function syncPreviewContent() {
@@ -1888,8 +2016,6 @@ function syncPreviewContent() {
       if (!val) return;
       doc.querySelectorAll(`[data-content="${section}.${f.key}"]`).forEach(t => {
         t.textContent = val;
-        t.style.outline = '2px solid rgba(201,168,76,0.6)';
-        t.style.outlineOffset = '2px';
       });
     });
   });
