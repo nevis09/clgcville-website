@@ -1410,6 +1410,8 @@ const COLLECTION_CFG = {
         hint: 'Describe the image for accessibility and the lightbox caption' },
       { label: 'Category', key: 'category', type: 'select',
         options: ['worship', 'events', 'community'] },
+      { label: 'Link (optional)', key: 'link', type: 'url',
+        hint: 'If set, clicking this photo goes to this page instead of opening the lightbox (e.g. /sermons/index.html)' },
       { label: 'Date Added', key: 'date', type: 'date' },
     ],
     mkFileName: i => mkFN(i.date, i.alt || 'photo', 'photo'),

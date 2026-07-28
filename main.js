@@ -177,6 +177,9 @@
     document.addEventListener('click', function (e) {
       var fig = e.target.closest && e.target.closest('.gallery-grid figure img');
       if (!fig) return;
+      var parentFigure = fig.closest('figure');
+      var link = parentFigure && parentFigure.getAttribute('data-link');
+      if (link) { window.location.href = link; return; }
       var idx = getLbImgs().indexOf(fig);
       showLbImage(idx);
       lightbox.classList.add('open');
@@ -234,7 +237,8 @@
             : items.filter(function (i) { return i.category === activeCat; });
 
           grid.innerHTML = filtered.map(function (item) {
-            return '<figure data-category="' + gesc(item.category || 'all') + '">' +
+            var linkAttr = item.link ? ' data-link="' + gesc(item.link) + '"' : '';
+            return '<figure data-category="' + gesc(item.category || 'all') + '"' + linkAttr + '>' +
               '<img src="' + gesc(item.url || '') + '" alt="' + gesc(item.alt || '') + '" loading="lazy">' +
               '</figure>';
           }).join('');
