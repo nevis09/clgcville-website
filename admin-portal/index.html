@@ -591,6 +591,24 @@
     .img-preview-wrap > img { width: 100%; max-height: 180px; object-fit: cover; display: block; }
     .img-preview-wrap .img-preview-err { padding: 12px; font-size: 12px; color: var(--text-muted); text-align: center; display: none; }
     .img-preview-wrap .pos-btn-row { padding: 8px; text-align: center; border-top: 1px solid var(--border); }
+    /* ── URL + UPLOAD ROW ───────────────────── */
+    .url-upload-row { display: flex; gap: 8px; align-items: stretch; }
+    .url-upload-row input { flex: 1; min-width: 0; }
+    .upload-drop-zone {
+      margin-top: 8px; border: 2px dashed var(--border); border-radius: 9px;
+      padding: 18px 12px; text-align: center; cursor: pointer;
+      color: var(--text-muted); font-size: 13px; transition: border-color 0.18s, background 0.18s;
+    }
+    .upload-drop-zone:hover, .upload-drop-zone.drag-over {
+      border-color: var(--primary); background: rgba(13,64,38,0.08); color: var(--text);
+    }
+    .upload-progress {
+      margin-top: 6px; display: none; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text-muted);
+    }
+    .upload-progress.active { display: flex; }
+    .upload-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .upload-bar { height: 100%; width: 0%; background: var(--primary); border-radius: 2px; transition: width 0.3s; }
 
     /* ── FOCAL EDITOR (full-screen) ──────── */
     #focal-editor {
@@ -1770,6 +1788,21 @@ function initModalFields(section) {
       if (hidden.value) openLinkedPagePreview(hidden.value);
     }
 
+    // Drop-zone drag events
+    if (f.previewImg) {
+      const dz = document.getElementById('upload-drop-zone');
+      if (dz) {
+        dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('drag-over'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+        dz.addEventListener('drop', e => {
+          e.preventDefault();
+          dz.classList.remove('drag-over');
+          const file = e.dataTransfer.files?.[0];
+          if (file) handleImgUpload({ files: [file] });
+        });
+      }
+    }
+
     // Image preview (read-only thumbnail; positioning via focal editor)
     if (f.previewImg) {
       const input  = document.getElementById(`mf-${f.key}`);
@@ -1846,12 +1879,32 @@ function buildCollectionForm(section, item) {
             </div>
            </div>`
         : '';
-      html += `<div class="form-group">
-        <label for="mf-${f.key}">${esc(f.label)}${req}</label>
-        <input type="${f.type}" id="mf-${f.key}" value="${esc(val)}" />
-        ${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ''}
-        ${previewHtml}
-      </div>`;
+      if (f.previewImg) {
+        html += `<div class="form-group">
+          <label for="mf-${f.key}">${esc(f.label)}${req}</label>
+          <div class="url-upload-row">
+            <input type="${f.type}" id="mf-${f.key}" value="${esc(val)}" placeholder="Paste image URL…" />
+            <button type="button" class="btn btn-outline btn-sm" id="upload-btn" onclick="triggerImgUpload()">📁 Upload</button>
+          </div>
+          <input type="file" id="img-file-input" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" style="display:none" onchange="handleImgUpload(this)">
+          <div class="upload-drop-zone" id="upload-drop-zone" onclick="triggerImgUpload()">
+            Drop an image here, or click to browse your computer
+          </div>
+          <div class="upload-progress" id="upload-progress">
+            <div class="upload-bar-wrap"><div class="upload-bar" id="upload-bar"></div></div>
+            <span id="upload-status">Uploading…</span>
+          </div>
+          ${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ''}
+          ${previewHtml}
+        </div>`;
+      } else {
+        html += `<div class="form-group">
+          <label for="mf-${f.key}">${esc(f.label)}${req}</label>
+          <input type="${f.type}" id="mf-${f.key}" value="${esc(val)}" />
+          ${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ''}
+          ${previewHtml}
+        </div>`;
+      }
     }
   });
 
@@ -1991,6 +2044,76 @@ function mkFN(date, title, fallback) {
 }
 
 // ── Page preview drawer ────────────────────────────
+// ── Image Upload ───────────────────────────────────────────────────
+function triggerImgUpload() {
+  document.getElementById('img-file-input')?.click();
+}
+
+async function handleImgUpload(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const MAX = 8 * 1024 * 1024;
+  if (file.size > MAX) { toast('File too large — max 8 MB', 'error'); return; }
+
+  const btn      = document.getElementById('upload-btn');
+  const progress = document.getElementById('upload-progress');
+  const bar      = document.getElementById('upload-bar');
+  const status   = document.getElementById('upload-status');
+  const dz       = document.getElementById('upload-drop-zone');
+
+  // Show progress UI
+  if (btn)      { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+  if (dz)       dz.style.display = 'none';
+  if (progress) progress.classList.add('active');
+  if (bar)      bar.style.width = '30%';
+  if (status)   status.textContent = 'Uploading…';
+
+  try {
+    const fd = new FormData();
+    fd.append('token', APP.token);
+    fd.append('file', file);
+
+    if (bar) bar.style.width = '60%';
+    const res  = await fetch('/api/upload', { method: 'POST', body: fd });
+    if (bar) bar.style.width = '90%';
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+    if (bar) bar.style.width = '100%';
+
+    // Populate URL field with the repo-relative path (saved to JSON)
+    const urlInput = document.getElementById('mf-url');
+    if (urlInput) {
+      urlInput.value = data.path;
+    }
+
+    // Show preview immediately using the raw GitHub URL
+    const previewWrap = document.getElementById('mf-url-preview-wrap');
+    const previewImg  = document.getElementById('mf-url-preview');
+    if (previewWrap && previewImg) {
+      previewWrap.style.display = 'block';
+      previewImg.style.display  = 'block';
+      previewImg.src = data.rawUrl; // loads instantly; path becomes valid after ~60s deploy
+    }
+
+    if (status) status.textContent = '✓ Uploaded';
+    toast('Image uploaded — will be live in ~60 seconds', 'success');
+  } catch (err) {
+    if (status) status.textContent = '✗ Failed';
+    toast('Upload failed: ' + err.message, 'error');
+    if (dz) dz.style.display = '';
+  } finally {
+    setTimeout(() => {
+      if (progress) progress.classList.remove('active');
+      if (bar)      bar.style.width = '0%';
+      if (dz)       dz.style.display = '';
+    }, 1800);
+    if (btn) { btn.disabled = false; btn.innerHTML = '📁 Upload'; }
+    if (input.value !== undefined) input.value = ''; // reset file input
+  }
+}
+
 // ── Focal-Point Editor ─────────────────────────────────────────────
 const _fe = { x: 50, y: 50, dragging: false };
 
