@@ -1323,9 +1323,18 @@ const FORM_CONFIGS = {
         ],
       },
       {
+        label: 'Hero Carousel',
+        fields: [
+          { label: 'Slide 1', key: 'hero_slide1', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1741837325441-9b8327474867?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Slide 2', key: 'hero_slide2', type: 'image', defaultSrc: '/assets/images/gallery/holding-bible-up.webp' },
+          { label: 'Slide 3', key: 'hero_slide3', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1627676569762-ea59379ed3b3?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Slide 4', key: 'hero_slide4', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1637501357872-a5b339a3eb01?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Slide 5', key: 'hero_slide5', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1757494763126-ac90dcd22f71?auto=format&fit=crop&w=900&q=60' },
+        ],
+      },
+      {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background',         key: 'hero_image',    type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1741837325441-9b8327474867?auto=format&fit=crop&w=900&q=60' },
           { label: 'Give / CTA Background',   key: 'cta_image',     type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1740650511388-f693ce80016c?auto=format&fit=crop&w=900&q=60' },
           { label: 'Welcome Section Photo',   key: 'welcome_image', type: 'image', defaultSrc: '/assets/images/gallery/holding-bible-up.webp' },
           { label: 'Gallery Preview — Photo 1', key: 'gallery_img1', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1757494763126-ac90dcd22f71?auto=format&fit=crop&w=900&q=60' },
@@ -1840,11 +1849,6 @@ function buildFormData(section, cfg) {
       deepSet(obj, f.key, el.value);
     });
   });
-
-  // hero_image is not in the form; preserve any stored value or leave blank
-  if (section === 'home' && !obj.hero_image) {
-    obj.hero_image = '';
-  }
 
   return obj;
 }
