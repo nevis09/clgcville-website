@@ -458,7 +458,7 @@ body.nav-open .hamburger { opacity: 0; pointer-events: none; }
 
 /* ---------- Forms ---------- */
 .form-group { margin-bottom: var(--space-sm); text-align: left; }
-.form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--color-accent); font-weight: 600; }
+.form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--color-accent-dark); font-weight: 600; }
 .form-control {
   width: 100%;
   padding: 0.85rem 1rem;
