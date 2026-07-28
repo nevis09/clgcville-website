@@ -1582,6 +1582,57 @@ function initModalFields(section) {
       updatePreview(); // show immediately if editing an existing item
     }
   });
+
+  // Gallery context preview — shows the new photo at the end of the real grid
+  if (section === 'gallery') {
+    const formActions = document.querySelector('#modal-body .form-actions');
+    const urlInput    = document.getElementById('mf-url');
+    if (!formActions) return;
+
+    const previewBtn = document.createElement('button');
+    previewBtn.type = 'button';
+    previewBtn.className = 'btn btn-outline btn-sm';
+    previewBtn.style.cssText = 'margin-bottom:12px;width:100%;justify-content:center;';
+    previewBtn.textContent = '🖼 Preview position in gallery';
+
+    const previewDiv = document.createElement('div');
+    previewDiv.style.cssText = 'display:none;margin-bottom:14px;';
+
+    formActions.before(previewBtn);
+    formActions.before(previewDiv);
+
+    function renderCtxPreview() {
+      if (previewDiv.style.display === 'none') return;
+      const newUrl   = urlInput ? urlInput.value.trim() : '';
+      const existing = (APP.collectionCache['gallery'] || []).slice(0, 8);
+      const allItems = [...existing, { url: newUrl, alt: 'New photo', _new: true }];
+
+      const cells = allItems.map(item => {
+        const isNew = !!item._new;
+        const border = isNew ? '2px solid #C9A84C' : '2px solid transparent';
+        const imgEl  = item.url
+          ? `<img src="${item.url.replace(/"/g, '&quot;')}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`
+          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;background:#e5e7eb;">No image</div>`;
+        const badge = isNew
+          ? `<div style="position:absolute;top:5px;right:5px;background:#C9A84C;color:#0D1F17;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.3px;">NEW</div>`
+          : '';
+        return `<div style="aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:#f4f6f4;position:relative;border:${border};">${imgEl}${badge}</div>`;
+      }).join('');
+
+      previewDiv.innerHTML =
+        `<p style="font-size:11.5px;color:#6B7280;margin-bottom:8px;">New photo appears at the end of the gallery grid:</p>
+         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">${cells}</div>`;
+    }
+
+    previewBtn.addEventListener('click', () => {
+      const isOpen = previewDiv.style.display !== 'none';
+      previewDiv.style.display = isOpen ? 'none' : 'block';
+      previewBtn.textContent = isOpen ? '🖼 Preview position in gallery' : '✕ Close preview';
+      if (!isOpen) renderCtxPreview();
+    });
+
+    if (urlInput) urlInput.addEventListener('input', renderCtxPreview);
+  }
 }
 
 function buildCollectionForm(section, item) {
