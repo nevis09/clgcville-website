@@ -719,6 +719,30 @@
     <div class="nav-item" data-s="announcements" onclick="switchSection('announcements')">
       <span class="nav-icon">📢</span> Announcements
     </div>
+
+    <div class="nav-section-label">Static Pages</div>
+
+    <div class="nav-item" data-s="mission" onclick="switchSection('mission')">
+      <span class="nav-icon">🙏</span> Mission
+    </div>
+    <div class="nav-item" data-s="history" onclick="switchSection('history')">
+      <span class="nav-icon">📖</span> Church History
+    </div>
+    <div class="nav-item" data-s="salvation" onclick="switchSection('salvation')">
+      <span class="nav-icon">✝️</span> Salvation
+    </div>
+    <div class="nav-item" data-s="sbs" onclick="switchSection('sbs')">
+      <span class="nav-icon">📚</span> School of Bible Studies
+    </div>
+    <div class="nav-item" data-s="contact_page" onclick="switchSection('contact_page')">
+      <span class="nav-icon">📞</span> Contact Page
+    </div>
+    <div class="nav-item" data-s="live" onclick="switchSection('live')">
+      <span class="nav-icon">📺</span> Live Stream
+    </div>
+    <div class="nav-item" data-s="giving" onclick="switchSection('giving')">
+      <span class="nav-icon">💰</span> Online Giving
+    </div>
   </aside>
 
   <!-- Main content -->
@@ -884,7 +908,7 @@ async function loadSection(section) {
   area.innerHTML = '<div class="loading-state"><div class="spinner-dark"></div> Loading…</div>';
 
   try {
-    if (['settings', 'home', 'pastor'].includes(section)) {
+    if (['settings','home','pastor','mission','history','salvation','sbs','contact_page','live','giving'].includes(section)) {
       const data = await apiGet(section);
       renderForm(section, data);
     } else {
@@ -927,21 +951,60 @@ const FORM_CONFIGS = {
   },
   home: {
     title: 'Home Page',
-    desc:  'Content shown on the homepage hero and welcome section',
+    desc:  'All text content on the homepage',
     groups: [
       {
-        label: 'Hero & Welcome Content',
+        label: 'Hero Section',
         fields: [
-          { label: 'Welcome Heading',    key: 'welcome_heading',    type: 'text',     full: true },
-          { label: 'Welcome Message',    key: 'welcome_text',       type: 'textarea', full: true },
-          { label: 'Mission Statement',  key: 'mission_statement',  type: 'textarea', full: true },
+          { label: 'Eyebrow Text',        key: 'hero_eyebrow',  type: 'text',     full: true },
+          { label: 'Main Heading',        key: 'hero_heading',  type: 'text',     full: true },
+          { label: 'Tagline',             key: 'hero_tagline',  type: 'textarea', full: true },
+          { label: 'Primary Button Text', key: 'hero_cta1',     type: 'text' },
+          { label: 'Secondary Button Text', key: 'hero_cta2',   type: 'text' },
+        ],
+      },
+      {
+        label: 'Welcome Section',
+        fields: [
+          { label: 'Eyebrow',     key: 'welcome_eyebrow', type: 'text' },
+          { label: 'Heading',     key: 'welcome_heading', type: 'text',     full: true },
+          { label: 'Paragraph 1', key: 'welcome_para1',   type: 'textarea', full: true },
+          { label: 'Paragraph 2', key: 'welcome_para2',   type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Features Section (Worship · Community · Outreach)',
+        fields: [
+          { label: 'Eyebrow',              key: 'features_eyebrow',  type: 'text' },
+          { label: 'Heading',              key: 'features_heading',  type: 'text',     full: true },
+          { label: 'Feature 1 — Title',    key: 'feature1_title',    type: 'text' },
+          { label: 'Feature 1 — Desc',     key: 'feature1_desc',     type: 'textarea', full: true },
+          { label: 'Feature 2 — Title',    key: 'feature2_title',    type: 'text' },
+          { label: 'Feature 2 — Desc',     key: 'feature2_desc',     type: 'textarea', full: true },
+          { label: 'Feature 3 — Title',    key: 'feature3_title',    type: 'text' },
+          { label: 'Feature 3 — Desc',     key: 'feature3_desc',     type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Give / CTA Section',
+        fields: [
+          { label: 'Eyebrow',   key: 'give_eyebrow', type: 'text' },
+          { label: 'Heading',   key: 'give_heading',  type: 'text',     full: true },
+          { label: 'Paragraph', key: 'give_para',     type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Newsletter Section',
+        fields: [
+          { label: 'Heading', key: 'newsletter_heading', type: 'text', full: true },
+          { label: 'Subtext', key: 'newsletter_sub',     type: 'text', full: true },
         ],
       },
     ],
   },
   pastor: {
     title: 'Pastor',
-    desc:  'Content shown on the Pastor / About page',
+    desc:  'Content shown on the Pastor page',
     groups: [
       {
         label: 'Pastor Information',
@@ -951,7 +1014,246 @@ const FORM_CONFIGS = {
           { label: 'Bio — Paragraph 1', key: 'bio1',  type: 'textarea', full: true },
           { label: 'Bio — Paragraph 2', key: 'bio2',  type: 'textarea', full: true },
           { label: 'Bio — Paragraph 3', key: 'bio3',  type: 'textarea', full: true },
+          { label: 'Bio — Paragraph 4', key: 'bio4',  type: 'textarea', full: true },
           { label: 'Featured Quote',    key: 'quote', type: 'textarea', full: true },
+        ],
+      },
+    ],
+  },
+  mission: {
+    title: 'Mission',
+    desc:  'Content on the Our Mission page',
+    groups: [
+      {
+        label: 'Mission Statement',
+        fields: [
+          { label: 'Eyebrow',   key: 'statement_eyebrow', type: 'text' },
+          { label: 'Heading',   key: 'statement_heading', type: 'text',     full: true },
+          { label: 'Paragraph', key: 'statement_para',    type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Vision',
+        fields: [
+          { label: 'Eyebrow',     key: 'vision_eyebrow', type: 'text' },
+          { label: 'Heading',     key: 'vision_heading', type: 'text',     full: true },
+          { label: 'Paragraph 1', key: 'vision_para1',   type: 'textarea', full: true },
+          { label: 'Paragraph 2', key: 'vision_para2',   type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Core Values',
+        fields: [
+          { label: 'Eyebrow',          key: 'values_eyebrow', type: 'text' },
+          { label: 'Heading',          key: 'values_heading', type: 'text', full: true },
+          { label: 'Value 1 — Title',  key: 'value1_title',   type: 'text' },
+          { label: 'Value 1 — Desc',   key: 'value1_desc',    type: 'textarea', full: true },
+          { label: 'Value 2 — Title',  key: 'value2_title',   type: 'text' },
+          { label: 'Value 2 — Desc',   key: 'value2_desc',    type: 'textarea', full: true },
+          { label: 'Value 3 — Title',  key: 'value3_title',   type: 'text' },
+          { label: 'Value 3 — Desc',   key: 'value3_desc',    type: 'textarea', full: true },
+          { label: 'Value 4 — Title',  key: 'value4_title',   type: 'text' },
+          { label: 'Value 4 — Desc',   key: 'value4_desc',    type: 'textarea', full: true },
+          { label: 'Value 5 — Title',  key: 'value5_title',   type: 'text' },
+          { label: 'Value 5 — Desc',   key: 'value5_desc',    type: 'textarea', full: true },
+          { label: 'Value 6 — Title',  key: 'value6_title',   type: 'text' },
+          { label: 'Value 6 — Desc',   key: 'value6_desc',    type: 'textarea', full: true },
+        ],
+      },
+    ],
+  },
+  history: {
+    title: 'Church History',
+    desc:  'Timeline and closing content on the Church History page',
+    groups: [
+      {
+        label: 'Timeline',
+        fields: [
+          { label: 'Era 1 — Heading',  key: 'era1_heading', type: 'text' },
+          { label: 'Era 1 — Text',     key: 'era1_para',    type: 'textarea', full: true },
+          { label: 'Era 2 — Heading',  key: 'era2_heading', type: 'text' },
+          { label: 'Era 2 — Text',     key: 'era2_para',    type: 'textarea', full: true },
+          { label: 'Era 3 — Heading',  key: 'era3_heading', type: 'text' },
+          { label: 'Era 3 — Text',     key: 'era3_para',    type: 'textarea', full: true },
+          { label: 'Era 4 — Heading',  key: 'era4_heading', type: 'text' },
+          { label: 'Era 4 — Text',     key: 'era4_para',    type: 'textarea', full: true },
+          { label: 'Era 5 — Heading',  key: 'era5_heading', type: 'text' },
+          { label: 'Era 5 — Text',     key: 'era5_para',    type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Closing Section',
+        fields: [
+          { label: 'Eyebrow',   key: 'closing_eyebrow', type: 'text' },
+          { label: 'Heading',   key: 'closing_heading', type: 'text',     full: true },
+          { label: 'Paragraph', key: 'closing_para',    type: 'textarea', full: true },
+        ],
+      },
+    ],
+  },
+  salvation: {
+    title: 'Salvation',
+    desc:  'Content on the Salvation page',
+    groups: [
+      {
+        label: 'What Is Salvation?',
+        fields: [
+          { label: 'Eyebrow',     key: 'what_eyebrow', type: 'text' },
+          { label: 'Heading',     key: 'what_heading', type: 'text',     full: true },
+          { label: 'Paragraph 1', key: 'what_para1',   type: 'textarea', full: true },
+          { label: 'Paragraph 2', key: 'what_para2',   type: 'textarea', full: true },
+          { label: 'Paragraph 3', key: 'what_para3',   type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Prayer Section',
+        fields: [
+          { label: 'Eyebrow',      key: 'prayer_eyebrow', type: 'text' },
+          { label: 'Heading',      key: 'prayer_heading', type: 'text',     full: true },
+          { label: 'Prayer Text',  key: 'prayer_text',    type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Decision Section',
+        fields: [
+          { label: 'Eyebrow',   key: 'decision_eyebrow', type: 'text' },
+          { label: 'Heading',   key: 'decision_heading', type: 'text',     full: true },
+          { label: 'Paragraph', key: 'decision_para',    type: 'textarea', full: true },
+        ],
+      },
+    ],
+  },
+  sbs: {
+    title: 'School of Bible Studies',
+    desc:  'Content on the School of Bible Studies page',
+    groups: [
+      {
+        label: 'Overview',
+        fields: [
+          { label: 'Eyebrow',     key: 'overview_eyebrow', type: 'text' },
+          { label: 'Heading',     key: 'overview_heading', type: 'text',     full: true },
+          { label: 'Paragraph 1', key: 'overview_para1',   type: 'textarea', full: true },
+          { label: 'Paragraph 2', key: 'overview_para2',   type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Courses',
+        fields: [
+          { label: 'Course 1 — Title',      key: 'course1_title',      type: 'text', full: true },
+          { label: 'Course 1 — Desc',       key: 'course1_desc',       type: 'textarea', full: true },
+          { label: 'Course 1 — Schedule',   key: 'course1_schedule',   type: 'text' },
+          { label: 'Course 1 — Instructor', key: 'course1_instructor', type: 'text' },
+          { label: 'Course 2 — Title',      key: 'course2_title',      type: 'text', full: true },
+          { label: 'Course 2 — Desc',       key: 'course2_desc',       type: 'textarea', full: true },
+          { label: 'Course 2 — Schedule',   key: 'course2_schedule',   type: 'text' },
+          { label: 'Course 2 — Instructor', key: 'course2_instructor', type: 'text' },
+          { label: 'Course 3 — Title',      key: 'course3_title',      type: 'text', full: true },
+          { label: 'Course 3 — Desc',       key: 'course3_desc',       type: 'textarea', full: true },
+          { label: 'Course 3 — Schedule',   key: 'course3_schedule',   type: 'text' },
+          { label: 'Course 3 — Instructor', key: 'course3_instructor', type: 'text' },
+          { label: 'Course 4 — Title',      key: 'course4_title',      type: 'text', full: true },
+          { label: 'Course 4 — Desc',       key: 'course4_desc',       type: 'textarea', full: true },
+          { label: 'Course 4 — Schedule',   key: 'course4_schedule',   type: 'text' },
+          { label: 'Course 4 — Instructor', key: 'course4_instructor', type: 'text' },
+        ],
+      },
+      {
+        label: 'How to Enroll',
+        fields: [
+          { label: 'Eyebrow',   key: 'enroll_eyebrow', type: 'text' },
+          { label: 'Heading',   key: 'enroll_heading', type: 'text',     full: true },
+          { label: 'Step 1',    key: 'step1_desc',     type: 'textarea', full: true },
+          { label: 'Step 2',    key: 'step2_desc',     type: 'textarea', full: true },
+          { label: 'Step 3',    key: 'step3_desc',     type: 'textarea', full: true },
+        ],
+      },
+    ],
+  },
+  contact_page: {
+    title: 'Contact Page',
+    desc:  'Text content on the Contact Us page',
+    groups: [
+      {
+        label: 'Contact Form Section',
+        fields: [
+          { label: 'Eyebrow',   key: 'form_eyebrow', type: 'text' },
+          { label: 'Heading',   key: 'form_heading', type: 'text',     full: true },
+          { label: 'Paragraph', key: 'form_para',    type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'About the Church Blurb',
+        fields: [
+          { label: 'Heading',     key: 'about_heading', type: 'text',     full: true },
+          { label: 'Paragraph 1', key: 'about_para1',   type: 'textarea', full: true },
+          { label: 'Paragraph 2', key: 'about_para2',   type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Join Us CTA',
+        fields: [
+          { label: 'Eyebrow',   key: 'cta_eyebrow', type: 'text' },
+          { label: 'Heading',   key: 'cta_heading', type: 'text',     full: true },
+          { label: 'Paragraph', key: 'cta_para',    type: 'textarea', full: true },
+        ],
+      },
+    ],
+  },
+  live: {
+    title: 'Live Stream',
+    desc:  'Content on the Live Stream page',
+    groups: [
+      {
+        label: 'Watch Section',
+        fields: [
+          { label: 'Eyebrow', key: 'watch_eyebrow', type: 'text' },
+          { label: 'Heading', key: 'watch_heading', type: 'text', full: true },
+          { label: 'YouTube Video ID', key: 'youtube_id', type: 'text',
+            hint: 'The video ID from the YouTube URL (e.g. dQw4w9WgXcQ). Leave blank to show "Coming Soon".' },
+        ],
+      },
+      {
+        label: 'Reminder / Newsletter Section',
+        fields: [
+          { label: 'Eyebrow',   key: 'reminder_eyebrow', type: 'text' },
+          { label: 'Heading',   key: 'reminder_heading', type: 'text',     full: true },
+          { label: 'Subtext',   key: 'reminder_sub',     type: 'text',     full: true },
+          { label: 'Paragraph', key: 'reminder_para',    type: 'textarea', full: true },
+        ],
+      },
+    ],
+  },
+  giving: {
+    title: 'Online Giving',
+    desc:  'Content on the Online Giving page',
+    groups: [
+      {
+        label: 'Hero Tagline',
+        fields: [
+          { label: 'Tagline Paragraph', key: 'hero_tagline', type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Give By Mail',
+        fields: [
+          { label: 'Eyebrow',   key: 'mail_eyebrow', type: 'text' },
+          { label: 'Heading',   key: 'mail_heading', type: 'text',     full: true },
+          { label: 'Paragraph', key: 'mail_para',    type: 'textarea', full: true },
+        ],
+      },
+      {
+        label: 'Giving Options',
+        fields: [
+          { label: 'Eyebrow',           key: 'options_eyebrow', type: 'text' },
+          { label: 'Heading',           key: 'options_heading', type: 'text',     full: true },
+          { label: 'Option 1 — Title',  key: 'option1_title',   type: 'text' },
+          { label: 'Option 1 — Desc',   key: 'option1_desc',    type: 'textarea', full: true },
+          { label: 'Option 2 — Title',  key: 'option2_title',   type: 'text' },
+          { label: 'Option 2 — Desc',   key: 'option2_desc',    type: 'textarea', full: true },
+          { label: 'Option 3 — Title',  key: 'option3_title',   type: 'text' },
+          { label: 'Option 3 — Desc',   key: 'option3_desc',    type: 'textarea', full: true },
+          { label: 'Option 4 — Title',  key: 'option4_title',   type: 'text' },
+          { label: 'Option 4 — Desc',   key: 'option4_desc',    type: 'textarea', full: true },
         ],
       },
     ],

@@ -16,9 +16,16 @@ const BRANCH = 'main';
 
 // Single-file sections
 const SINGLE = {
-  settings: '_data/settings.json',
-  home:     '_data/home.json',
-  pastor:   '_data/pastor.json',
+  settings:     '_data/settings.json',
+  home:         '_data/home.json',
+  pastor:       '_data/pastor.json',
+  mission:      '_data/mission.json',
+  history:      '_data/history.json',
+  salvation:    '_data/salvation.json',
+  sbs:          '_data/sbs.json',
+  contact_page: '_data/contact_page.json',
+  live:         '_data/live.json',
+  giving:       '_data/giving.json',
 };
 
 // Collection folder sections

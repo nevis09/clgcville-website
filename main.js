@@ -216,6 +216,47 @@
     });
   }
 
+  /* ---------- Generic content hydration ---------- */
+  (function () {
+    var contentEls = document.querySelectorAll('[data-content]');
+    if (!contentEls.length) return;
+
+    var sections = {};
+    contentEls.forEach(function (el) {
+      var attr = el.getAttribute('data-content');
+      var dot = attr.indexOf('.');
+      if (dot > 0) sections[attr.slice(0, dot)] = true;
+    });
+
+    function deepGet(obj, path) {
+      return path.split('.').reduce(function (o, k) { return o && o[k]; }, obj);
+    }
+
+    Object.keys(sections).forEach(function (section) {
+      fetch('/api/content?section=' + section)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data) return;
+          contentEls.forEach(function (el) {
+            var attr = el.getAttribute('data-content');
+            if (attr.indexOf(section + '.') !== 0) return;
+            var key = attr.slice(section.length + 1);
+            var val = deepGet(data, key);
+            if (val !== undefined && val !== null && String(val).trim() !== '') {
+              el.textContent = val;
+            }
+          });
+          /* Also update hrefs for social/link elements */
+          document.querySelectorAll('[data-href^="' + section + '."]').forEach(function (el) {
+            var key = el.getAttribute('data-href').slice(section.length + 1);
+            var val = deepGet(data, key);
+            if (val && String(val).trim() !== '') el.href = val;
+          });
+        })
+        .catch(function () {});
+    });
+  }());
+
   /* ---------- Homepage announcements feed ---------- */
   (function () {
     var list = document.getElementById('home-ann-list');
