@@ -12,6 +12,46 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="styles.css">
+<style>
+.home-hero-carousel { overflow: hidden; }
+.home-hero-carousel::before { z-index: 1; }
+.phc-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.1s ease-in-out;
+  z-index: 0;
+}
+.phc-slide.active { opacity: 1; }
+.home-hero-carousel .hero-content { z-index: 3; position: relative; }
+.home-hero-carousel .scroll-indicator { z-index: 3; }
+.phc-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.28);
+  color: rgba(255,255,255,0.75);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s, color .2s;
+  backdrop-filter: blur(4px);
+  padding: 0;
+}
+.phc-arrow:hover { background: rgba(255,255,255,0.25); color: #fff; }
+.phc-prev { left: 18px; }
+.phc-next { right: 18px; }
+</style>
 </head>
 <body>
 
@@ -54,7 +94,14 @@
 
 <main>
 
-  <section class="hero" style="background-image: url('https://images.unsplash.com/photo-1741837325441-9b8327474867?auto=format&fit=crop&w=1600&h=900&q=75');" data-bg="home.hero_image">
+  <section class="hero home-hero-carousel">
+    <div class="phc-slide active" style="background-image: url('https://images.unsplash.com/photo-1741837325441-9b8327474867?auto=format&fit=crop&w=1600&h=900&q=75');"></div>
+    <div class="phc-slide" style="background-image: url('assets/images/gallery/holding-bible-up.webp');"></div>
+    <div class="phc-slide" style="background-image: url('https://images.unsplash.com/photo-1627676569762-ea59379ed3b3?auto=format&fit=crop&w=1600&h=900&q=75');"></div>
+    <div class="phc-slide" style="background-image: url('https://images.unsplash.com/photo-1637501357872-a5b339a3eb01?auto=format&fit=crop&w=1600&h=900&q=75');"></div>
+    <div class="phc-slide" style="background-image: url('https://images.unsplash.com/photo-1757494763126-ac90dcd22f71?auto=format&fit=crop&w=1600&h=900&q=75');"></div>
+    <button class="phc-arrow phc-prev" aria-label="Previous image">&#8249;</button>
+    <button class="phc-arrow phc-next" aria-label="Next image">&#8250;</button>
     <div class="hero-content">
       <span class="eyebrow" data-content="home.hero_eyebrow">Welcome Home</span>
       <h1 data-content="home.hero_heading">Church Of The Living God</h1>
@@ -271,5 +318,24 @@
 </footer>
 
 <script src="main.js?v=4"></script>
+<script>
+(function () {
+  var slides = document.querySelectorAll('.phc-slide');
+  var prev   = document.querySelector('.phc-prev');
+  var next   = document.querySelector('.phc-next');
+  if (!slides.length) return;
+  var current = 0, timer;
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    clearInterval(timer);
+    timer = setInterval(function () { goTo(current + 1); }, 5000);
+  }
+  prev.addEventListener('click', function () { goTo(current - 1); });
+  next.addEventListener('click', function () { goTo(current + 1); });
+  timer = setInterval(function () { goTo(current + 1); }, 5000);
+})();
+</script>
 </body>
 </html>
