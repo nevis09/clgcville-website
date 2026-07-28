@@ -1888,7 +1888,7 @@ function renderForm(section, data) {
               : `<div class="pimg-no-img"><img id="ff-${safeKey}-preview" src="" alt="" style="display:none"><span>No image</span></div>`}
             ${isDefault ? `<span class="pimg-default-badge" id="ff-${safeKey}-badge">Default</span>` : ''}
             <div class="pimg-card-overlay">
-              <button type="button" title="Upload" onclick="event.stopPropagation();triggerPageImgUpload('${f.key}')">📁</button>
+              <button type="button" title="Upload" onclick="event.stopPropagation();triggerPageImgUpload('${f.key}')">⬆️</button>
               <button type="button" title="Gallery" onclick="event.stopPropagation();openGalleryPicker('${f.key}')">📂</button>
               <button type="button" title="Download" onclick="event.stopPropagation();downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">💾</button>
             </div>
