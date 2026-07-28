@@ -1410,8 +1410,42 @@ const COLLECTION_CFG = {
         hint: 'Describe the image for accessibility and the lightbox caption' },
       { label: 'Category', key: 'category', type: 'select',
         options: ['worship', 'events', 'community'] },
-      { label: 'Link (optional)', key: 'link', type: 'url',
-        hint: 'If set, clicking this photo goes to this page instead of opening the lightbox (e.g. /sermons/index.html)' },
+      { label: 'Link to Page (optional)', key: 'link', type: 'select',
+        options: [
+          '',
+          '/sermons/index.html',
+          '/live/index.html',
+          '/service-times/index.html',
+          '/calendar/index.html',
+          '/announcements/index.html',
+          '/school-of-bible-studies/index.html',
+          '/online-giving/index.html',
+          '/prayer-request/index.html',
+          '/salvation/index.html',
+          '/gallery/index.html',
+          '/contact/index.html',
+          '/about/mission/index.html',
+          '/about/pastor/index.html',
+          '/about/church-history/index.html',
+        ],
+        optionLabels: [
+          '— No link (open lightbox) —',
+          'Sermons',
+          'Live Stream',
+          'Service Times',
+          'Calendar',
+          'Announcements',
+          'School of Bible Studies',
+          'Online Giving',
+          'Prayer Request',
+          'Salvation',
+          'Gallery',
+          'Contact Us',
+          'Mission',
+          'Pastor',
+          'Church History',
+        ],
+      },
       { label: 'Date Added', key: 'date', type: 'date' },
     ],
     mkFileName: i => mkFN(i.date, i.alt || 'photo', 'photo'),
@@ -1492,9 +1526,10 @@ function buildCollectionForm(section, item) {
         ${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ''}
       </div>`;
     } else if (f.type === 'select') {
-      const opts = f.options.map(o =>
-        `<option value="${esc(o)}"${val===o?' selected':''}>${esc(o)}</option>`
-      ).join('');
+      const opts = f.options.map((o, oi) => {
+        const label = f.optionLabels ? f.optionLabels[oi] : o;
+        return `<option value="${esc(o)}"${val===o?' selected':''}>${esc(label)}</option>`;
+      }).join('');
       html += `<div class="form-group">
         <label for="mf-${f.key}">${esc(f.label)}${req}</label>
         <select id="mf-${f.key}">${opts}</select>
