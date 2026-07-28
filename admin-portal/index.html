@@ -631,6 +631,54 @@
     .upload-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
     .upload-bar { height: 100%; width: 0%; background: var(--primary); border-radius: 2px; transition: width 0.3s; }
 
+    /* ── PAGE IMAGE PREVIEW (section forms) ─── */
+    .page-img-preview-wrap {
+      position: relative; display: inline-block; margin-top: 10px;
+    }
+    .page-img-preview-wrap img {
+      max-width: 260px; max-height: 170px;
+      border-radius: 9px; object-fit: cover; display: block;
+      border: 2px solid var(--border);
+    }
+    .page-img-default-badge {
+      position: absolute; bottom: 6px; left: 6px;
+      background: rgba(0,0,0,0.65); color: #fff;
+      font-size: 11px; padding: 2px 8px; border-radius: 4px; pointer-events: none;
+    }
+    /* ── GALLERY PICKER MODAL ──────────────── */
+    #gallery-picker-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.78);
+      z-index: 9998; display: none; flex-direction: column;
+    }
+    #gallery-picker-modal.open { display: flex; }
+    .gp-header {
+      background: var(--surface); padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .gp-header h3 { margin: 0; font-size: 1rem; }
+    .gp-body { flex: 1; overflow-y: auto; padding: 20px; background: var(--bg); }
+    .gp-search { width: 100%; max-width: 360px; margin-bottom: 16px; }
+    .gp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .gp-thumb {
+      background: var(--surface); border: 2px solid var(--border);
+      border-radius: 9px; overflow: hidden; cursor: pointer; padding: 0;
+      text-align: left; transition: border-color 0.15s, transform 0.1s;
+    }
+    .gp-thumb:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .gp-thumb img {
+      width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block;
+    }
+    .gp-thumb-cap {
+      display: block; font-size: 11px; padding: 5px 8px;
+      color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .gp-empty { text-align: center; padding: 3rem; color: var(--text-muted); }
+
     /* ── FOCAL EDITOR (full-screen) ──────── */
     #focal-editor {
       display: none; position: fixed; inset: 0; z-index: 12000;
@@ -958,6 +1006,24 @@
 </div>
 
 <!-- ═══════════════════════════════════════════
+     GALLERY PICKER MODAL
+═══════════════════════════════════════════ -->
+<div id="gallery-picker-modal">
+  <div class="gp-header">
+    <div>
+      <h3>📂 Pick from Gallery</h3>
+      <p style="margin:2px 0 0;font-size:12px;color:var(--text-muted)">Click any image to use it in the field</p>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="closeGalleryPicker()">✕ Close</button>
+  </div>
+  <div class="gp-body">
+    <input type="search" class="form-control gp-search" id="gp-search"
+           placeholder="Filter by caption or category…" oninput="filterGalleryPicker(this.value)">
+    <div id="gp-grid" class="gp-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
      FOCAL POINT EDITOR
 ═══════════════════════════════════════════ -->
 <div id="focal-editor">
@@ -1226,7 +1292,6 @@ const FORM_CONFIGS = {
           { label: 'Heading',     key: 'welcome_heading', type: 'text',     full: true },
           { label: 'Paragraph 1', key: 'welcome_para1',   type: 'textarea', full: true },
           { label: 'Paragraph 2', key: 'welcome_para2',   type: 'textarea', full: true },
-          { label: 'Welcome Photo', key: 'welcome_image', type: 'image' },
         ],
       },
       {
@@ -1260,13 +1325,13 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background',         key: 'hero_image',    type: 'image' },
-          { label: 'Give / CTA Background',   key: 'cta_image',     type: 'image' },
-          { label: 'Welcome Section Photo',   key: 'welcome_image', type: 'image' },
-          { label: 'Gallery Preview — Photo 1', key: 'gallery_img1', type: 'image' },
-          { label: 'Gallery Preview — Photo 2', key: 'gallery_img2', type: 'image' },
-          { label: 'Gallery Preview — Photo 3', key: 'gallery_img3', type: 'image' },
-          { label: 'Give Section Photo',      key: 'give_image',    type: 'image' },
+          { label: 'Hero Background',         key: 'hero_image',    type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1741837325441-9b8327474867?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Give / CTA Background',   key: 'cta_image',     type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1740650511388-f693ce80016c?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Welcome Section Photo',   key: 'welcome_image', type: 'image', defaultSrc: '/assets/images/gallery/holding-bible-up.webp' },
+          { label: 'Gallery Preview — Photo 1', key: 'gallery_img1', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1757494763126-ac90dcd22f71?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Gallery Preview — Photo 2', key: 'gallery_img2', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1627676569762-ea59379ed3b3?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Gallery Preview — Photo 3', key: 'gallery_img3', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1637501357872-a5b339a3eb01?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Give Section Photo',      key: 'give_image',    type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1565571008567-59a4987d6646?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1278,7 +1343,7 @@ const FORM_CONFIGS = {
       {
         label: 'Pastor Information',
         fields: [
-          { label: 'Pastor Photo',      key: 'photo', type: 'image' },
+          { label: 'Pastor Photo',      key: 'photo', type: 'image', defaultSrc: '/assets/images/gallery/preacher.jpeg' },
           { label: 'Full Name',         key: 'name',  type: 'text' },
           { label: 'Title / Role',      key: 'title', type: 'text' },
           { label: 'Bio — Paragraph 1', key: 'bio1',  type: 'textarea', full: true },
@@ -1291,7 +1356,7 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+          { label: 'Hero Background', key: 'hero_image', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1650238211675-0936293f49e1?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1340,7 +1405,7 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+          { label: 'Hero Background', key: 'hero_image', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1642695113989-105367adabe6?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1375,9 +1440,9 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background',   key: 'hero_image',  type: 'image' },
-          { label: 'Era 1 Photo',       key: 'era1_image',  type: 'image' },
-          { label: 'Era 2 Photo',       key: 'era2_image',  type: 'image' },
+          { label: 'Hero Background', key: 'hero_image',  type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1741837325441-9b8327474867?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Era 1 Photo',     key: 'era1_image',  type: 'image', defaultSrc: '/assets/images/gallery/bible-read.avif' },
+          { label: 'Era 2 Photo',     key: 'era2_image',  type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1664006989021-4628d0604c36?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1415,8 +1480,8 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image',   type: 'image' },
-          { label: 'Jesus / Artwork', key: 'jesus_image',  type: 'image' },
+          { label: 'Hero Background', key: 'hero_image',   type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1740650511388-f693ce80016c?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Jesus / Artwork', key: 'jesus_image',  type: 'image', defaultSrc: '/assets/images/gallery/jesus.avif' },
         ],
       },
     ],
@@ -1432,7 +1497,7 @@ const FORM_CONFIGS = {
           { label: 'Heading',          key: 'overview_heading', type: 'text',     full: true },
           { label: 'Paragraph 1',      key: 'overview_para1',   type: 'textarea', full: true },
           { label: 'Paragraph 2',      key: 'overview_para2',   type: 'textarea', full: true },
-          { label: 'Overview Photo',   key: 'overview_image',   type: 'image' },
+          { label: 'Overview Photo',   key: 'overview_image',   type: 'image', defaultSrc: '/assets/images/gallery/bible-study.avif' },
         ],
       },
       {
@@ -1469,7 +1534,7 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+          { label: 'Hero Background', key: 'hero_image', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1735969702825-9b7ea1598391?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1505,9 +1570,9 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background',   key: 'hero_image',    type: 'image' },
-          { label: 'Join Us Background', key: 'cta_image',   type: 'image' },
-          { label: 'Prayer Photo',      key: 'prayer_image',  type: 'image' },
+          { label: 'Hero Background',    key: 'hero_image',    type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1638231919548-08a10fc19ee7?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Join Us Background', key: 'cta_image',   type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1735969702825-9b7ea1598391?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Prayer Photo',       key: 'prayer_image',  type: 'image', defaultSrc: '/assets/images/gallery/bow-in-prayer.avif' },
         ],
       },
     ],
@@ -1537,10 +1602,10 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image', type: 'image' },
-          { label: 'Photo 1',         key: 'img1',       type: 'image' },
-          { label: 'Photo 2',         key: 'img2',       type: 'image' },
-          { label: 'Photo 3',         key: 'img3',       type: 'image' },
+          { label: 'Hero Background', key: 'hero_image', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1735969702825-9b7ea1598391?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Photo 1',         key: 'img1',       type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1755644578811-4340e00de467?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Photo 2',         key: 'img2',       type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1565571008567-59a4987d6646?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Photo 3',         key: 'img3',       type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1635058157308-e41b28950e55?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1581,7 +1646,7 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+          { label: 'Hero Background', key: 'hero_image', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1776091104217-02e3732a4a81?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1593,7 +1658,7 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+          { label: 'Hero Background', key: 'hero_image', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1642695113989-105367adabe6?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1605,7 +1670,7 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+          { label: 'Hero Background', key: 'hero_image', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1776091104217-02e3732a4a81?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1617,9 +1682,9 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background',      key: 'hero_image',   type: 'image' },
-          { label: 'CTA Background',       key: 'cta_image',    type: 'image' },
-          { label: 'Service Photo',        key: 'service_img',  type: 'image' },
+          { label: 'Hero Background', key: 'hero_image',  type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1650238211675-0936293f49e1?auto=format&fit=crop&w=900&q=60' },
+          { label: 'CTA Background',  key: 'cta_image',   type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1776091104217-02e3732a4a81?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Service Photo',   key: 'service_img', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1755644578811-4340e00de467?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1631,8 +1696,8 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image',   type: 'image' },
-          { label: 'Cross / Church Photo', key: 'cross_image', type: 'image' },
+          { label: 'Hero Background',      key: 'hero_image',   type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1759375577204-2f169152a151?auto=format&fit=crop&w=900&q=60' },
+          { label: 'Cross / Church Photo', key: 'cross_image',  type: 'image', defaultSrc: '/assets/images/gallery/church-cross.avif' },
         ],
       },
     ],
@@ -1644,7 +1709,7 @@ const FORM_CONFIGS = {
       {
         label: 'Page Images',
         fields: [
-          { label: 'Hero Background', key: 'hero_image', type: 'image' },
+          { label: 'Hero Background', key: 'hero_image', type: 'image', defaultSrc: 'https://images.unsplash.com/photo-1759375577204-2f169152a151?auto=format&fit=crop&w=900&q=60' },
         ],
       },
     ],
@@ -1694,18 +1759,29 @@ function renderForm(section, data) {
           <textarea id="${id}" rows="4">${esc(val)}</textarea>
         </div>`;
       } else if (f.type === 'image') {
-        const safeKey = f.key.replace(/\./g, '-');
+        const safeKey   = f.key.replace(/\./g, '-');
+        const previewSrc = val || f.defaultSrc || '';
+        const isDefault  = !val && !!f.defaultSrc;
+        const placeholder = f.defaultSrc
+          ? 'Using page default — paste URL, upload, or pick from gallery to override'
+          : 'Paste image URL, upload from computer, or pick from gallery…';
         html += `<div class="form-group full">
           <label for="ff-${safeKey}">${esc(f.label)}</label>
           <div class="url-upload-row">
-            <input type="url" id="ff-${safeKey}" value="${esc(val)}" placeholder="Paste image URL or upload from computer…" />
+            <input type="url" id="ff-${safeKey}" value="${esc(val)}" placeholder="${placeholder}" />
             <button type="button" class="btn btn-outline btn-sm" id="ff-${safeKey}-upload-btn"
                     onclick="triggerPageImgUpload('${f.key}')">📁 Upload</button>
+            <button type="button" class="btn btn-outline btn-sm"
+                    onclick="openGalleryPicker('${f.key}')">📂 Gallery</button>
           </div>
           <input type="file" id="ff-${safeKey}-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
                  style="display:none" onchange="handlePageImgUpload(this,'${f.key}')">
-          <img id="ff-${safeKey}-preview" src="${esc(val)}" alt="Preview"
-               style="margin-top:8px;max-width:220px;max-height:160px;border-radius:8px;object-fit:cover;${val ? '' : 'display:none;'}">
+          ${previewSrc
+            ? `<div class="page-img-preview-wrap" id="ff-${safeKey}-wrap">
+                 <img id="ff-${safeKey}-preview" src="${esc(previewSrc)}" alt="Preview">
+                 ${isDefault ? `<span class="page-img-default-badge" id="ff-${safeKey}-badge">Page default</span>` : ''}
+               </div>`
+            : `<img id="ff-${safeKey}-preview" src="" alt="Preview" style="display:none">`}
         </div>`;
       } else {
         html += `<div class="form-group ${cls}">
@@ -2382,6 +2458,8 @@ async function handlePageImgUpload(input, key) {
       preview.src          = data.rawUrl;
       preview.style.display = 'block';
     }
+    // Clear "Page default" badge — image is now overridden
+    document.getElementById(`ff-${safeKey}-badge`)?.remove();
     toast('Image uploaded — will be live in ~60 seconds', 'success');
   } catch (err) {
     toast('Upload failed: ' + err.message, 'error');
@@ -2389,6 +2467,75 @@ async function handlePageImgUpload(input, key) {
     if (btn) { btn.disabled = false; btn.innerHTML = '📁 Upload'; }
     input.value = '';
   }
+}
+
+// ── Gallery picker ─────────────────────────────────────────────────
+let _gpKey = null;
+let _gpItems = [];
+
+async function openGalleryPicker(key) {
+  _gpKey = key;
+  const modal = document.getElementById('gallery-picker-modal');
+  const grid  = document.getElementById('gp-grid');
+  const search = document.getElementById('gp-search');
+  if (!modal || !grid) return;
+  if (search) search.value = '';
+  grid.innerHTML = '<div class="loading-state"><div class="spinner-dark"></div> Loading gallery…</div>';
+  modal.classList.add('open');
+  try {
+    const { items } = await apiGet('gallery');
+    _gpItems = (items || []).filter(i => i.url);
+    renderGalleryPickerGrid(_gpItems);
+  } catch (err) {
+    grid.innerHTML = `<p class="gp-empty">Failed to load gallery: ${esc(err.message)}</p>`;
+  }
+}
+
+function renderGalleryPickerGrid(items) {
+  const grid = document.getElementById('gp-grid');
+  if (!grid) return;
+  if (!items.length) {
+    grid.innerHTML = '<p class="gp-empty">No gallery images found. Upload some in the Gallery section first.</p>';
+    return;
+  }
+  grid.innerHTML = items.map((item, i) =>
+    `<button class="gp-thumb" onclick="selectGalleryImage(${i})" title="${esc(item.alt || '')}">
+       <img src="${esc(item.url)}" alt="${esc(item.alt || '')}" loading="lazy">
+       <span class="gp-thumb-cap">${esc(item.alt || item.category || item.url.split('/').pop())}</span>
+     </button>`
+  ).join('');
+}
+
+function filterGalleryPicker(q) {
+  if (!q.trim()) { renderGalleryPickerGrid(_gpItems); return; }
+  const lq = q.toLowerCase();
+  renderGalleryPickerGrid(_gpItems.filter(i =>
+    (i.alt || '').toLowerCase().includes(lq) ||
+    (i.category || '').toLowerCase().includes(lq)
+  ));
+}
+
+function selectGalleryImage(index) {
+  const thumbs = document.querySelectorAll('.gp-thumb');
+  const item   = _gpItems[index];
+  if (!item || !_gpKey) { closeGalleryPicker(); return; }
+  const safeKey = _gpKey.replace(/\./g, '-');
+  const input   = document.getElementById(`ff-${safeKey}`);
+  const preview = document.getElementById(`ff-${safeKey}-preview`);
+  const wrap    = document.getElementById(`ff-${safeKey}-wrap`);
+  if (input)   { input.value = item.url; }
+  if (preview) { preview.src = item.url; preview.style.display = 'block'; }
+  if (wrap)    { wrap.style.display = 'inline-block'; }
+  // Remove "Page default" badge — image now explicitly set
+  document.getElementById(`ff-${safeKey}-badge`)?.remove();
+  syncPreviewContent();
+  closeGalleryPicker();
+  toast('Image selected — click Save to apply', 'success');
+}
+
+function closeGalleryPicker() {
+  document.getElementById('gallery-picker-modal')?.classList.remove('open');
+  _gpKey = null;
 }
 
 // ── Focal-Point Editor ─────────────────────────────────────────────
@@ -2636,9 +2783,13 @@ function syncPreviewContent() {
         doc.querySelectorAll(`[data-bg="${section}.${f.key}"]`).forEach(el => {
           el.style.backgroundImage = 'url(' + val + ')';
         });
-        // Also update the thumbnail in the admin form
-        const thumb = document.getElementById(`ff-${f.key.replace(/\./g, '-')}-preview`);
+        // Also update the thumbnail in the admin form and clear the default badge
+        const safeK = f.key.replace(/\./g, '-');
+        const thumb = document.getElementById(`ff-${safeK}-preview`);
         if (thumb) { thumb.src = val; thumb.style.display = 'block'; }
+        const wrap = document.getElementById(`ff-${safeK}-wrap`);
+        if (wrap) wrap.style.display = 'inline-block';
+        document.getElementById(`ff-${safeK}-badge`)?.remove();
       } else {
         doc.querySelectorAll(`[data-content="${section}.${f.key}"]`).forEach(t => {
           t.textContent = val;
