@@ -450,6 +450,27 @@
       flex-direction: column;
       gap: 10px;
     }
+    /* ── Gallery public/private tabs ────────── */
+    .gallery-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 18px; }
+    .gallery-tab {
+      padding: 9px 20px; font-size: 13px; font-weight: 500;
+      cursor: pointer; background: none; border: none;
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+      color: var(--text-muted); transition: color 0.15s, border-color 0.15s;
+    }
+    .gallery-tab:hover { color: var(--text); }
+    .gallery-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+    .gallery-tab-note {
+      font-size: 12px; color: var(--text-muted);
+      background: var(--surface-alt); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 14px; margin-bottom: 14px;
+    }
+    .visibility-badge {
+      display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px;
+      border-radius: 20px; margin-left: 6px; vertical-align: middle;
+    }
+    .visibility-badge.public  { background: #d1fae5; color: #065f46; }
+    .visibility-badge.private { background: #fef3c7; color: #92400e; }
 
     .collection-item {
       background: white;
@@ -996,6 +1017,7 @@ const APP = {
   token: sessionStorage.getItem('adminToken') || null,
   section: 'settings',
   collectionCache: {},   // section → items[]
+  galleryTab: 'public',  // 'public' | 'private'
 };
 
 // ── Boot ───────────────────────────────────────────
@@ -1128,6 +1150,7 @@ async function loadSection(section) {
     } else {
       const { items } = await apiGet(section);
       APP.collectionCache[section] = items || [];
+      if (section === 'gallery') APP._galleryAll = items || [];
       renderCollection(section, APP.collectionCache[section]);
     }
   } catch (err) {
@@ -1646,6 +1669,9 @@ const COLLECTION_CFG = {
         hint: 'Describe the image (used for accessibility and the lightbox caption)' },
       { label: 'Category', key: 'category', type: 'select',
         options: ['worship', 'events', 'community'] },
+      { label: 'Gallery Visibility', key: 'visibility', type: 'select',
+        options: ['public', 'private'],
+        optionLabels: ['🌐 Public — shown on gallery page', '🔒 Private — admin only'] },
       { label: 'Link to Page (optional)', key: 'link', type: 'page-picker',
         options: [
           '',
@@ -1690,31 +1716,60 @@ const COLLECTION_CFG = {
 
 function renderCollection(section, items) {
   const cfg = COLLECTION_CFG[section];
-  // Sort newest first
-  const sorted = [...items].sort((a,b) => (b.date||'') > (a.date||'') ? 1 : -1);
+  const isGallery = section === 'gallery';
+  const activeTab = APP.galleryTab;
+
+  // For gallery: filter by tab before sorting
+  const visible = isGallery
+    ? items.filter(i => activeTab === 'private' ? i.visibility === 'private' : i.visibility !== 'private')
+    : items;
+  const sorted = [...visible].sort((a,b) => (b.date||'') > (a.date||'') ? 1 : -1);
 
   const collPreviewUrl = SECTION_URLS[section];
+  const addLabel = isGallery && activeTab === 'private' ? '+ Add Private Photo' : `+ Add ${cfg.singular}`;
+
   let html = `
     <div class="section-header">
       <div><h2>${cfg.title}</h2><p>${cfg.desc}</p></div>
       <div style="display:flex;gap:8px;align-items:center;">
         ${collPreviewUrl ? `<button class="btn btn-outline btn-sm" onclick="openPreview('${section}')">👁 Preview page</button>` : ''}
-        <button class="btn btn-green" onclick="openAdd('${section}')">+ Add ${cfg.singular}</button>
+        <button class="btn btn-green" onclick="openAdd('${section}')">${addLabel}</button>
       </div>
-    </div>
-    <div class="collection-list">`;
+    </div>`;
+
+  if (isGallery) {
+    // Count each bucket from the full unfiltered cache
+    const all = APP._galleryAll || items;
+    const pubCount  = all.filter(i => i.visibility !== 'private').length;
+    const privCount = all.filter(i => i.visibility === 'private').length;
+    html += `
+    <div class="gallery-tabs">
+      <button class="gallery-tab${activeTab === 'public'  ? ' active' : ''}" onclick="setGalleryTab('public')">🌐 Public Gallery <span style="font-weight:400;opacity:0.6;">(${pubCount})</span></button>
+      <button class="gallery-tab${activeTab === 'private' ? ' active' : ''}" onclick="setGalleryTab('private')">🔒 Private Gallery <span style="font-weight:400;opacity:0.6;">(${privCount})</span></button>
+    </div>`;
+    if (activeTab === 'private') {
+      html += `<p class="gallery-tab-note">🔒 Private photos are stored in the repo but never shown on the public gallery page. Only admins can see them here.</p>`;
+    }
+  }
+
+  html += `<div class="collection-list">`;
 
   if (sorted.length === 0) {
+    const emptyMsg = isGallery && activeTab === 'private'
+      ? 'No private photos yet. Add a photo and set its visibility to Private.'
+      : `No ${cfg.title.toLowerCase()} yet.`;
     html += `<div class="empty-state">
       <div class="empty-icon">${cfg.icon}</div>
-      <p>No ${cfg.title.toLowerCase()} yet.</p>
-      <small>Click "Add ${cfg.singular}" above to create the first one.</small>
+      <p>${emptyMsg}</p>
     </div>`;
   } else {
     sorted.forEach((item, idx) => {
+      const badge = isGallery
+        ? `<span class="visibility-badge ${item.visibility === 'private' ? 'private' : 'public'}">${item.visibility === 'private' ? '🔒 Private' : '🌐 Public'}</span>`
+        : '';
       html += `<div class="collection-item">
         <div class="item-info">
-          <h4>${esc(cfg.labelFn(item))}</h4>
+          <h4>${esc(cfg.labelFn(item))}${badge}</h4>
           <p>${esc(cfg.subFn(item))}</p>
         </div>
         <div class="item-actions">
@@ -1727,9 +1782,14 @@ function renderCollection(section, items) {
 
   html += '</div>';
   document.getElementById('content-area').innerHTML = html;
-  // Store sorted in cache so index matches
   APP.collectionCache[section] = sorted;
 }
+
+function setGalleryTab(tab) {
+  APP.galleryTab = tab;
+  renderCollection('gallery', APP._galleryAll || []);
+}
+
 
 // ── Collection modal ───────────────────────────────
 function openAdd(section) {
@@ -1739,6 +1799,11 @@ function openAdd(section) {
   document.getElementById('modal-overlay').style.display = 'flex';
   const dateEl = document.getElementById('mf-date');
   if (dateEl && !dateEl.value) dateEl.value = todayISO();
+  // Pre-select visibility to match whichever tab the admin is viewing
+  if (section === 'gallery') {
+    const visEl = document.getElementById('mf-visibility');
+    if (visEl) visEl.value = APP.galleryTab === 'private' ? 'private' : 'public';
+  }
   initModalFields(section);
 }
 

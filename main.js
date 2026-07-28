@@ -219,7 +219,7 @@
     fetch('/api/content?section=gallery')
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
-        var items = (data && data.items) || [];
+        var items = ((data && data.items) || []).filter(function(i) { return i.visibility !== 'private'; });
         if (!items.length) {
           grid.innerHTML = '<p style="text-align:center;opacity:0.6;padding:var(--space-xl) 0;grid-column:1/-1;">No photos yet.</p>';
           return;
