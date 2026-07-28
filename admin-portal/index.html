@@ -718,6 +718,48 @@
       opacity: 0; transition: opacity .15s;
     }
     .page-img-preview-wrap:hover .page-img-dl-btn { opacity: 1; }
+    /* ── PAGE IMAGE GRID ───────────────────── */
+    .pimg-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px) { .pimg-grid { grid-template-columns: repeat(2, 1fr); } }
+    .pimg-card { border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); background: var(--surface); }
+    .pimg-card-img {
+      position: relative; aspect-ratio: 4/3; overflow: hidden; cursor: zoom-in;
+    }
+    .pimg-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .15s; }
+    .pimg-card-img:hover img { opacity: 0.82; }
+    .pimg-no-img {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+      background: var(--surface-2, #f0f0f0); color: var(--text-muted); font-size: 12px;
+    }
+    .pimg-card-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.52);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      opacity: 0; transition: opacity .18s;
+    }
+    .pimg-card-img:hover .pimg-card-overlay { opacity: 1; }
+    .pimg-card-overlay button {
+      background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.36);
+      color: #fff; border-radius: 5px; padding: 5px 8px;
+      font-size: 13px; cursor: pointer; transition: background .15s; line-height: 1;
+    }
+    .pimg-card-overlay button:hover { background: rgba(255,255,255,0.28); }
+    .pimg-default-badge {
+      position: absolute; bottom: 6px; left: 6px;
+      background: rgba(0,0,0,0.62); color: #fff;
+      font-size: 10px; padding: 2px 6px; border-radius: 4px; pointer-events: none;
+    }
+    .pimg-card-footer { padding: 7px 10px 6px; }
+    .pimg-card-label { font-size: 12px; font-weight: 600; color: var(--text); display: block; }
+    .pimg-url-row { padding: 0 8px 8px; }
+    .pimg-url-input {
+      width: 100%; font-size: 11px; padding: 5px 8px;
+      border: 1px solid var(--border); border-radius: 5px;
+      background: var(--input-bg, #fff); color: var(--text);
+    }
     /* ── GALLERY PICKER MODAL ──────────────── */
     #gallery-picker-modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.78);
@@ -1832,62 +1874,103 @@ function renderForm(section, data) {
     </div>`;
 
   cfg.groups.forEach((group, gi) => {
-    html += `<div class="card"><div class="card-title">${group.label}</div><div class="form-grid">`;
+    const allImages = group.fields.length > 0 && group.fields.every(f => f.type === 'image');
 
-    group.fields.forEach(f => {
-      const id = `ff-${f.key.replace(/\./g,'-')}`;
-      const rawVal = deepGet(data, f.key);
-      const val = rawVal ?? '';
-      const cls = f.full ? 'full' : '';
-
-      if (f.type === 'textarea') {
-        html += `<div class="form-group ${cls}">
-          <label for="${id}">${esc(f.label)}</label>
-          <textarea id="${id}" rows="4">${esc(val)}</textarea>
-        </div>`;
-      } else if (f.type === 'image') {
-        const safeKey   = f.key.replace(/\./g, '-');
+    if (allImages) {
+      // ── Compact 4-up image grid ─────────────────────────────────
+      html += `<div class="card"><div class="card-title">${group.label}</div><div class="pimg-grid">`;
+      group.fields.forEach(f => {
+        const safeKey    = f.key.replace(/\./g, '-');
+        const rawVal     = deepGet(data, f.key);
+        const val        = rawVal ?? '';
         const previewSrc = val || f.defaultSrc || '';
         const isDefault  = !val && !!f.defaultSrc;
-        const placeholder = f.defaultSrc
-          ? 'Using page default — paste URL, upload, or pick from gallery to override'
-          : 'Paste image URL, upload from computer, or pick from gallery…';
-        html += `<div class="form-group full">
-          <label for="ff-${safeKey}">${esc(f.label)}</label>
-          <div class="url-upload-row">
-            <input type="url" id="ff-${safeKey}" value="${esc(val)}" placeholder="${placeholder}" />
-            <button type="button" class="btn btn-outline btn-sm" id="ff-${safeKey}-upload-btn"
-                    onclick="triggerPageImgUpload('${f.key}')">📁 Upload</button>
-            <button type="button" class="btn btn-outline btn-sm"
-                    onclick="openGalleryPicker('${f.key}')">📂 Gallery</button>
-          </div>
+        html += `<div class="pimg-card">
           <input type="file" id="ff-${safeKey}-file" accept="image/*,.heic,.heif"
                  style="display:none" onchange="handlePageImgUpload(this,'${f.key}')">
-          ${previewSrc
-            ? `<div class="page-img-preview-wrap" id="ff-${safeKey}-wrap">
-                 <img id="ff-${safeKey}-preview" src="${esc(previewSrc)}" alt="Preview">
-                 ${isDefault ? `<span class="page-img-default-badge" id="ff-${safeKey}-badge">Page default</span>` : ''}
-                 <button type="button" class="page-img-dl-btn" title="Download image"
-                         onclick="downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">⬇</button>
-               </div>`
-            : `<img id="ff-${safeKey}-preview" src="" alt="Preview" style="display:none">`}
+          <div class="pimg-card-img" onclick="expandImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">
+            ${previewSrc
+              ? `<img id="ff-${safeKey}-preview" src="${esc(previewSrc)}" alt="${esc(f.label)}">`
+              : `<div class="pimg-no-img"><img id="ff-${safeKey}-preview" src="" alt="" style="display:none"><span>No image</span></div>`}
+            ${isDefault ? `<span class="pimg-default-badge" id="ff-${safeKey}-badge">Default</span>` : ''}
+            <div class="pimg-card-overlay">
+              <button type="button" title="Upload" onclick="event.stopPropagation();triggerPageImgUpload('${f.key}')">📁</button>
+              <button type="button" title="Gallery" onclick="event.stopPropagation();openGalleryPicker('${f.key}')">📂</button>
+              <button type="button" title="Paste URL" onclick="event.stopPropagation();togglePimgUrl('${f.key}')">🔗</button>
+              <button type="button" title="Download" onclick="event.stopPropagation();downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">⬇</button>
+            </div>
+          </div>
+          <div class="pimg-card-footer">
+            <span class="pimg-card-label">${esc(f.label)}</span>
+          </div>
+          <div class="pimg-url-row" id="ff-${safeKey}-urlrow" style="display:none">
+            <input type="url" class="pimg-url-input" id="ff-${safeKey}" value="${esc(val)}"
+                   placeholder="Paste image URL…">
+          </div>
         </div>`;
-      } else {
-        html += `<div class="form-group ${cls}">
-          <label for="${id}">${esc(f.label)}</label>
-          <input type="${f.type}" id="${id}" value="${esc(val)}" />
-        </div>`;
-      }
-    });
+      });
+      html += `</div>
+        <div class="form-actions">
+          <button class="btn btn-green" onclick="saveForm('${section}')">💾 Save ${group.label}</button>
+          <span class="save-note">Changes go live in ~60 sec</span>
+        </div>
+      </div>`;
 
-    html += `</div>
-      <div class="form-actions">
-        <button class="btn btn-green" onclick="saveForm('${section}')">
-          💾 Save ${group.label}
-        </button>
-        <span class="save-note">Changes go live in ~60 sec</span>
-      </div>
-    </div>`;
+    } else {
+      // ── Standard form grid ──────────────────────────────────────
+      html += `<div class="card"><div class="card-title">${group.label}</div><div class="form-grid">`;
+      group.fields.forEach(f => {
+        const id     = `ff-${f.key.replace(/\./g,'-')}`;
+        const rawVal = deepGet(data, f.key);
+        const val    = rawVal ?? '';
+        const cls    = f.full ? 'full' : '';
+
+        if (f.type === 'textarea') {
+          html += `<div class="form-group ${cls}">
+            <label for="${id}">${esc(f.label)}</label>
+            <textarea id="${id}" rows="4">${esc(val)}</textarea>
+          </div>`;
+        } else if (f.type === 'image') {
+          const safeKey    = f.key.replace(/\./g, '-');
+          const previewSrc = val || f.defaultSrc || '';
+          const isDefault  = !val && !!f.defaultSrc;
+          const placeholder = f.defaultSrc
+            ? 'Using page default — paste URL, upload, or pick from gallery to override'
+            : 'Paste image URL, upload from computer, or pick from gallery…';
+          html += `<div class="form-group full">
+            <label for="ff-${safeKey}">${esc(f.label)}</label>
+            <div class="url-upload-row">
+              <input type="url" id="ff-${safeKey}" value="${esc(val)}" placeholder="${placeholder}" />
+              <button type="button" class="btn btn-outline btn-sm" id="ff-${safeKey}-upload-btn"
+                      onclick="triggerPageImgUpload('${f.key}')">📁 Upload</button>
+              <button type="button" class="btn btn-outline btn-sm"
+                      onclick="openGalleryPicker('${f.key}')">📂 Gallery</button>
+            </div>
+            <input type="file" id="ff-${safeKey}-file" accept="image/*,.heic,.heif"
+                   style="display:none" onchange="handlePageImgUpload(this,'${f.key}')">
+            ${previewSrc
+              ? `<div class="page-img-preview-wrap" id="ff-${safeKey}-wrap">
+                   <img id="ff-${safeKey}-preview" src="${esc(previewSrc)}" alt="Preview">
+                   ${isDefault ? `<span class="page-img-default-badge" id="ff-${safeKey}-badge">Page default</span>` : ''}
+                   <button type="button" class="page-img-dl-btn" title="Download image"
+                           onclick="downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">⬇</button>
+                 </div>`
+              : `<img id="ff-${safeKey}-preview" src="" alt="Preview" style="display:none">`}
+          </div>`;
+        } else {
+          html += `<div class="form-group ${cls}">
+            <label for="${id}">${esc(f.label)}</label>
+            <input type="${f.type}" id="${id}" value="${esc(val)}" />
+          </div>`;
+        }
+      });
+      html += `</div>
+        <div class="form-actions">
+          <button class="btn btn-green" onclick="saveForm('${section}')">💾 Save ${group.label}</button>
+          <span class="save-note">Changes go live in ~60 sec</span>
+        </div>
+      </div>`;
+    }
   });
 
   document.getElementById('content-area').innerHTML = html;
@@ -2545,11 +2628,24 @@ async function handlePageImgUpload(input, key) {
   }
 }
 
+// ── Page image grid helpers ────────────────────────────────────────
+function togglePimgUrl(key) {
+  const safeKey = key.replace(/\./g, '-');
+  const row = document.getElementById(`ff-${safeKey}-urlrow`);
+  if (!row) return;
+  const opening = row.style.display === 'none';
+  row.style.display = opening ? 'block' : 'none';
+  if (opening) {
+    const inp = document.getElementById(`ff-${safeKey}`);
+    if (inp) { inp.focus(); inp.select(); }
+  }
+}
+
 // ── Image lightbox ─────────────────────────────────────────────────
 function expandImage(url, alt) {
   const lb  = document.getElementById('img-lightbox');
   const img = document.getElementById('img-lightbox-img');
-  if (!lb || !img) return;
+  if (!lb || !img || !url || url === window.location.href) return;
   img.src = url;
   img.alt = alt || '';
   lb.classList.add('open');
