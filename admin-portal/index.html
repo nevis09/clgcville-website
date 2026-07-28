@@ -653,11 +653,15 @@
       position: relative; cursor: crosshair; user-select: none;
       border-radius: 10px; overflow: hidden; max-width: 100%;
       box-shadow: 0 12px 60px rgba(0,0,0,0.7);
+      min-height: 200px; background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
     }
     .fe-img-wrap img {
-      display: block; max-width: 100%; max-height: calc(100vh - 170px);
-      object-fit: cover; pointer-events: none;
+      display: block; max-width: 100%; width: 100%;
+      max-height: calc(100vh - 170px); min-height: 200px;
+      object-fit: contain; pointer-events: none;
     }
+    .fe-thumb-wrap img { object-fit: cover; }
     .fe-dot {
       position: absolute; width: 28px; height: 28px;
       border: 3px solid #fff; border-radius: 50%;
@@ -2183,13 +2187,19 @@ async function handleImgUpload(input) {
 const _fe = { x: 50, y: 50, dragging: false };
 
 function openFocalEditor() {
-  const imgUrl = document.getElementById('mf-url')?.value.trim();
-  if (!imgUrl) { toast('Paste an image URL first', 'error'); return; }
+  // Prefer the already-resolved preview src (handles rawUrl after upload + pasted URLs).
+  // Fall back to the URL input value (covers cases where preview hasn't rendered yet).
+  const previewImg = document.getElementById('mf-url-preview');
+  const urlInput   = document.getElementById('mf-url');
+  const imgUrl = (previewImg?.src && !previewImg.src.endsWith('/admin-portal/') && previewImg.naturalWidth > 0)
+    ? previewImg.src
+    : urlInput?.value.trim();
+  if (!imgUrl) { toast('Paste or upload an image first', 'error'); return; }
   _fe.x = parseFloat(document.getElementById('mf-x_pos')?.value) || 50;
   _fe.y = parseFloat(document.getElementById('mf-y_pos')?.value) || 50;
   ['fe-img','fe-th-ls','fe-th-sq','fe-th-pt'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.src = imgUrl;
+    if (el) { el.src = ''; el.src = imgUrl; }  // force reload
   });
   feSyncUI();
   document.getElementById('focal-editor').classList.add('open');
