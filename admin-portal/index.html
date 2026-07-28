@@ -645,6 +645,15 @@
       background: rgba(0,0,0,0.65); color: #fff;
       font-size: 11px; padding: 2px 8px; border-radius: 4px; pointer-events: none;
     }
+    .page-img-dl-btn {
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(0,0,0,0.55); color: #fff;
+      border: none; border-radius: 4px; width: 26px; height: 26px;
+      font-size: 13px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .15s;
+    }
+    .page-img-preview-wrap:hover .page-img-dl-btn { opacity: 1; }
     /* ── GALLERY PICKER MODAL ──────────────── */
     #gallery-picker-modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.78);
@@ -1783,12 +1792,14 @@ function renderForm(section, data) {
             <button type="button" class="btn btn-outline btn-sm"
                     onclick="openGalleryPicker('${f.key}')">📂 Gallery</button>
           </div>
-          <input type="file" id="ff-${safeKey}-file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+          <input type="file" id="ff-${safeKey}-file" accept="image/*,.heic,.heif"
                  style="display:none" onchange="handlePageImgUpload(this,'${f.key}')">
           ${previewSrc
             ? `<div class="page-img-preview-wrap" id="ff-${safeKey}-wrap">
                  <img id="ff-${safeKey}-preview" src="${esc(previewSrc)}" alt="Preview">
                  ${isDefault ? `<span class="page-img-default-badge" id="ff-${safeKey}-badge">Page default</span>` : ''}
+                 <button type="button" class="page-img-dl-btn" title="Download image"
+                         onclick="downloadImage(document.getElementById('ff-${safeKey}-preview').src,'${esc(f.label)}')">⬇</button>
                </div>`
             : `<img id="ff-${safeKey}-preview" src="" alt="Preview" style="display:none">`}
         </div>`;
@@ -2022,6 +2033,7 @@ function renderCollection(section, items) {
           <p>${esc(cfg.subFn(item))}</p>
         </div>
         <div class="item-actions">
+          ${isGallery && item.url ? `<button class="btn btn-outline btn-sm" onclick="downloadImage('${esc(item.url)}','${esc(item.alt||item.category||'')}')">⬇️ Download</button>` : ''}
           <button class="btn btn-outline btn-sm" onclick="openEdit('${section}',${idx})">✏️ Edit</button>
           <button class="btn btn-danger  btn-sm" onclick="confirmDelete('${section}',${idx})">🗑️</button>
         </div>
@@ -2200,7 +2212,7 @@ function buildCollectionForm(section, item) {
             <input type="${f.type}" id="mf-${f.key}" value="${esc(val)}" placeholder="Paste image URL…" />
             <button type="button" class="btn btn-outline btn-sm" id="upload-btn" onclick="triggerImgUpload()">📁 Upload</button>
           </div>
-          <input type="file" id="img-file-input" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" style="display:none" onchange="handleImgUpload(this)">
+          <input type="file" id="img-file-input" accept="image/*,.heic,.heif" style="display:none" onchange="handleImgUpload(this)">
           <div class="upload-drop-zone" id="upload-drop-zone" onclick="triggerImgUpload()">
             Drop an image here, or click to browse your computer
           </div>
@@ -2471,6 +2483,26 @@ async function handlePageImgUpload(input, key) {
     if (btn) { btn.disabled = false; btn.innerHTML = '📁 Upload'; }
     input.value = '';
   }
+}
+
+// ── Image download ─────────────────────────────────────────────────
+function downloadImage(url, label) {
+  if (!url) return;
+  const ext = (url.split('?')[0].split('.').pop() || 'jpg').toLowerCase();
+  const safe = (label || 'image').replace(/[^a-zA-Z0-9_\- ]/g, '').trim().replace(/\s+/g, '_');
+  const filename = (safe || 'image') + '.' + ext;
+  fetch(url, { mode: 'cors' })
+    .then(r => { if (!r.ok) throw new Error(); return r.blob(); })
+    .then(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    })
+    .catch(() => window.open(url, '_blank'));
 }
 
 // ── Gallery picker ─────────────────────────────────────────────────
