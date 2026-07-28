@@ -500,13 +500,52 @@
     }
 
     .item-actions { display: flex; gap: 7px; flex-shrink: 0; }
-    .gallery-thumb {
-      width: 68px; height: 68px; object-fit: cover;
-      border-radius: 8px; flex-shrink: 0;
-      border: 1.5px solid var(--border);
-      cursor: zoom-in; transition: opacity .15s, transform .15s;
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 4px;
     }
-    .gallery-thumb:hover { opacity: 0.82; transform: scale(1.04); }
+    @media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px)  { .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+    .gallery-card {
+      border-radius: 10px; overflow: hidden;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      cursor: zoom-in;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .gallery-card:hover { transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,0,0,0.13); }
+    .gallery-card-img-wrap { position: relative; aspect-ratio: 1; overflow: hidden; }
+    .gallery-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gallery-card-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.52);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      opacity: 0; transition: opacity .18s;
+    }
+    .gallery-card:hover .gallery-card-overlay { opacity: 1; }
+    .gallery-card-overlay button {
+      background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.38);
+      color: #fff; border-radius: 6px; padding: 5px 9px;
+      font-size: 13px; cursor: pointer; transition: background .15s; line-height: 1;
+    }
+    .gallery-card-overlay button:hover { background: rgba(255,255,255,0.28); }
+    .gallery-card-overlay .del-btn { border-color: rgba(220,60,60,0.6); color: #ffaaaa; }
+    .gallery-card-overlay .del-btn:hover { background: rgba(220,60,60,0.35); }
+    .gallery-vis-pill {
+      position: absolute; top: 7px; left: 7px;
+      font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 600;
+      backdrop-filter: blur(6px);
+    }
+    .gallery-vis-pill.public  { background: rgba(34,197,94,0.22); color: #16a34a; border: 1px solid rgba(34,197,94,0.35); }
+    .gallery-vis-pill.private { background: rgba(0,0,0,0.45); color: #ddd; border: 1px solid rgba(255,255,255,0.2); }
+    .gallery-card-info { padding: 8px 10px 10px; }
+    .gallery-card-title {
+      display: block; font-size: 12px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .gallery-card-meta { display: block; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
     #img-lightbox {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.88); z-index: 9999;
@@ -2008,34 +2047,58 @@ function renderCollection(section, items) {
     }
   }
 
-  html += `<div class="collection-list">`;
-
-  if (sorted.length === 0) {
-    const emptyMsg = isGallery && activeTab === 'private'
-      ? 'No private photos yet. Add a photo and set its visibility to Private.'
-      : `No ${cfg.title.toLowerCase()} yet.`;
-    html += `<div class="empty-state">
-      <div class="empty-icon">${cfg.icon}</div>
-      <p>${emptyMsg}</p>
-    </div>`;
+  if (isGallery) {
+    html += `<div class="gallery-grid">`;
+    if (sorted.length === 0) {
+      const emptyMsg = activeTab === 'private'
+        ? 'No private photos yet. Add a photo and set its visibility to Private.'
+        : 'No gallery photos yet.';
+      html += `</div><div class="empty-state"><div class="empty-icon">${cfg.icon}</div><p>${emptyMsg}</p></div>`;
+    } else {
+      sorted.forEach((item, idx) => {
+        const visClass = item.visibility === 'private' ? 'private' : 'public';
+        const visLabel = item.visibility === 'private' ? '🔒 Private' : '🌐 Public';
+        const meta     = [item.category, item.date ? item.date.slice(0,10) : ''].filter(Boolean).join(' · ');
+        html += `<div class="gallery-card" onclick="expandImage('${esc(item.url||'')}','${esc(item.alt||'')}')">
+          <div class="gallery-card-img-wrap">
+            ${item.url ? `<img src="${esc(item.url)}" alt="${esc(item.alt||'')}" loading="lazy">` : ''}
+            <span class="gallery-vis-pill ${visClass}">${visLabel}</span>
+            <div class="gallery-card-overlay">
+              ${item.url ? `<button title="Download" onclick="event.stopPropagation();downloadImage('${esc(item.url)}','${esc(item.alt||item.category||'')}')">⬇</button>` : ''}
+              <button title="Edit" onclick="event.stopPropagation();openEdit('${section}',${idx})">✏️</button>
+              <button title="Delete" class="del-btn" onclick="event.stopPropagation();confirmDelete('${section}',${idx})">🗑</button>
+            </div>
+          </div>
+          <div class="gallery-card-info">
+            <span class="gallery-card-title">${esc(item.alt || '—')}</span>
+            <span class="gallery-card-meta">${esc(meta)}</span>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
   } else {
-    sorted.forEach((item, idx) => {
-      const badge = isGallery
-        ? `<span class="visibility-badge ${item.visibility === 'private' ? 'private' : 'public'}">${item.visibility === 'private' ? '🔒 Private' : '🌐 Public'}</span>`
-        : '';
-      html += `<div class="collection-item">
-        ${isGallery && item.url ? `<img class="gallery-thumb" src="${esc(item.url)}" alt="${esc(item.alt||'')}" loading="lazy" onclick="expandImage('${esc(item.url)}','${esc(item.alt||'')}')">` : ''}
-        <div class="item-info">
-          <h4>${esc(cfg.labelFn(item))}${badge}</h4>
-          <p>${esc(cfg.subFn(item))}</p>
-        </div>
-        <div class="item-actions">
-          ${isGallery && item.url ? `<button class="btn btn-outline btn-sm" onclick="downloadImage('${esc(item.url)}','${esc(item.alt||item.category||'')}')">⬇️ Download</button>` : ''}
-          <button class="btn btn-outline btn-sm" onclick="openEdit('${section}',${idx})">✏️ Edit</button>
-          <button class="btn btn-danger  btn-sm" onclick="confirmDelete('${section}',${idx})">🗑️</button>
-        </div>
+    html += `<div class="collection-list">`;
+    if (sorted.length === 0) {
+      html += `<div class="empty-state">
+        <div class="empty-icon">${cfg.icon}</div>
+        <p>No ${cfg.title.toLowerCase()} yet.</p>
       </div>`;
-    });
+    } else {
+      sorted.forEach((item, idx) => {
+        html += `<div class="collection-item">
+          <div class="item-info">
+            <h4>${esc(cfg.labelFn(item))}</h4>
+            <p>${esc(cfg.subFn(item))}</p>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-outline btn-sm" onclick="openEdit('${section}',${idx})">✏️ Edit</button>
+            <button class="btn btn-danger  btn-sm" onclick="confirmDelete('${section}',${idx})">🗑️</button>
+          </div>
+        </div>`;
+      });
+    }
+    html += `</div>`;
   }
 
   html += '</div>';
