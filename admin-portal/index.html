@@ -547,6 +547,45 @@
 
     .modal-body { padding: 22px; }
 
+    /* ── PAGE PREVIEW DRAWER ────────────────── */
+    #preview-drawer {
+      position: fixed;
+      top: 58px;
+      right: 0;
+      width: 0;
+      height: calc(100vh - 58px);
+      background: white;
+      border-left: 2px solid var(--accent);
+      transition: width 0.28s cubic-bezier(.4,0,.2,1);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #preview-drawer.open { width: 52vw; }
+    .preview-bar {
+      height: 44px;
+      background: var(--dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      flex-shrink: 0;
+      gap: 10px;
+    }
+    .preview-bar-left { display: flex; align-items: center; gap: 8px; }
+    .preview-bar-label { font-size: 11px; color: rgba(255,255,255,0.5); }
+    .preview-bar-url { font-size: 12px; color: rgba(255,255,255,0.85); font-family: monospace; }
+    .preview-live-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; color: #22C55E; font-weight: 600; letter-spacing: .3px;
+    }
+    .preview-live-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #22C55E;
+      animation: livePulse 2s ease infinite;
+    }
+    #preview-iframe { flex: 1; border: none; background: white; }
+
     /* ── IMAGE PREVIEW ──────────────────────── */
     .img-preview-wrap { margin-top: 8px; border-radius: 9px; overflow: hidden; background: var(--surface-alt); border: 1px solid var(--border); display: none; }
     .img-preview-wrap img { width: 100%; max-height: 180px; object-fit: cover; display: block; }
@@ -778,6 +817,18 @@
   </main>
 </div>
 
+<!-- ── Page preview drawer ──────────────────── -->
+<div id="preview-drawer">
+  <div class="preview-bar">
+    <div class="preview-bar-left">
+      <span class="preview-live-badge"><span class="preview-live-dot"></span> LIVE</span>
+      <span class="preview-bar-label">Previewing</span>
+      <span class="preview-bar-url" id="preview-bar-url"></span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="closePreview()">✕ Close</button>
+  </div>
+  <iframe id="preview-iframe" title="Page preview"></iframe>
+</div>
 
 <!-- ═══════════════════════════════════════════
      MODAL
@@ -931,6 +982,7 @@ async function apiDelete(filePath) {
 
 // ── Section loader ─────────────────────────────────
 async function loadSection(section) {
+  closePreview();
   const area = document.getElementById('content-area');
   area.innerHTML = '<div class="loading-state"><div class="spinner-dark"></div> Loading…</div>';
 
@@ -1287,11 +1339,25 @@ const FORM_CONFIGS = {
   },
 };
 
+const SECTION_URLS = {
+  home:         '/',
+  pastor:       '/about/pastor/',
+  mission:      '/about/mission/',
+  history:      '/about/church-history/',
+  salvation:    '/salvation/',
+  sbs:          '/school-of-bible-studies/',
+  contact_page: '/contact/',
+  live:         '/live/',
+  giving:       '/online-giving/',
+};
+
 function renderForm(section, data) {
   const cfg = FORM_CONFIGS[section];
+  const previewUrl = SECTION_URLS[section];
   let html = `
     <div class="section-header">
       <div><h2>${cfg.title}</h2><p>${cfg.desc}</p></div>
+      ${previewUrl ? `<button class="btn btn-outline btn-sm" onclick="openPreview('${section}')">👁 Preview page</button>` : ''}
     </div>`;
 
   cfg.groups.forEach((group, gi) => {
@@ -1327,6 +1393,11 @@ function renderForm(section, data) {
   });
 
   document.getElementById('content-area').innerHTML = html;
+
+  // Wire every field to sync the preview drawer in real time
+  document.querySelectorAll('#content-area input, #content-area textarea').forEach(el => {
+    el.addEventListener('input', syncPreviewContent);
+  });
 }
 
 async function saveForm(section) {
@@ -1582,57 +1653,6 @@ function initModalFields(section) {
       updatePreview(); // show immediately if editing an existing item
     }
   });
-
-  // Gallery context preview — shows the new photo at the end of the real grid
-  if (section === 'gallery') {
-    const formActions = document.querySelector('#modal-body .form-actions');
-    const urlInput    = document.getElementById('mf-url');
-    if (!formActions) return;
-
-    const previewBtn = document.createElement('button');
-    previewBtn.type = 'button';
-    previewBtn.className = 'btn btn-outline btn-sm';
-    previewBtn.style.cssText = 'margin-bottom:12px;width:100%;justify-content:center;';
-    previewBtn.textContent = '🖼 Preview position in gallery';
-
-    const previewDiv = document.createElement('div');
-    previewDiv.style.cssText = 'display:none;margin-bottom:14px;';
-
-    formActions.before(previewBtn);
-    formActions.before(previewDiv);
-
-    function renderCtxPreview() {
-      if (previewDiv.style.display === 'none') return;
-      const newUrl   = urlInput ? urlInput.value.trim() : '';
-      const existing = (APP.collectionCache['gallery'] || []).slice(0, 8);
-      const allItems = [...existing, { url: newUrl, alt: 'New photo', _new: true }];
-
-      const cells = allItems.map(item => {
-        const isNew = !!item._new;
-        const border = isNew ? '2px solid #C9A84C' : '2px solid transparent';
-        const imgEl  = item.url
-          ? `<img src="${item.url.replace(/"/g, '&quot;')}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`
-          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#9ca3af;background:#e5e7eb;">No image</div>`;
-        const badge = isNew
-          ? `<div style="position:absolute;top:5px;right:5px;background:#C9A84C;color:#0D1F17;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.3px;">NEW</div>`
-          : '';
-        return `<div style="aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:#f4f6f4;position:relative;border:${border};">${imgEl}${badge}</div>`;
-      }).join('');
-
-      previewDiv.innerHTML =
-        `<p style="font-size:11.5px;color:#6B7280;margin-bottom:8px;">New photo appears at the end of the gallery grid:</p>
-         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">${cells}</div>`;
-    }
-
-    previewBtn.addEventListener('click', () => {
-      const isOpen = previewDiv.style.display !== 'none';
-      previewDiv.style.display = isOpen ? 'none' : 'block';
-      previewBtn.textContent = isOpen ? '🖼 Preview position in gallery' : '✕ Close preview';
-      if (!isOpen) renderCtxPreview();
-    });
-
-    if (urlInput) urlInput.addEventListener('input', renderCtxPreview);
-  }
 }
 
 function buildCollectionForm(section, item) {
@@ -1810,6 +1830,53 @@ function mkFN(date, title, fallback) {
   const slug = (title || fallback).toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
   return `${d}-${slug}.json`;
+}
+
+// ── Page preview drawer ────────────────────────────
+function openPreview(section) {
+  const url = SECTION_URLS[section];
+  if (!url) return;
+  const drawer = document.getElementById('preview-drawer');
+  const iframe  = document.getElementById('preview-iframe');
+  const urlEl   = document.getElementById('preview-bar-url');
+  if (!drawer || !iframe) return;
+  if (urlEl) urlEl.textContent = url;
+  drawer.classList.add('open');
+  iframe.src = url;
+  iframe.onload = () => {
+    syncPreviewContent();
+    // Re-sync after the page's own API fetch has hydrated the DOM
+    setTimeout(syncPreviewContent, 1800);
+  };
+}
+
+function closePreview() {
+  const drawer = document.getElementById('preview-drawer');
+  const iframe  = document.getElementById('preview-iframe');
+  if (drawer) drawer.classList.remove('open');
+  if (iframe) { iframe.onload = null; iframe.src = 'about:blank'; }
+}
+
+function syncPreviewContent() {
+  const iframe = document.getElementById('preview-iframe');
+  if (!iframe || !iframe.contentDocument) return;
+  const section = APP.section;
+  const cfg = FORM_CONFIGS[section];
+  if (!cfg) return;
+  const doc = iframe.contentDocument;
+  cfg.groups.forEach(g => {
+    g.fields.forEach(f => {
+      const el = document.getElementById(`ff-${f.key.replace(/\./g, '-')}`);
+      if (!el) return;
+      const val = el.value.trim();
+      if (!val) return;
+      doc.querySelectorAll(`[data-content="${section}.${f.key}"]`).forEach(t => {
+        t.textContent = val;
+        t.style.outline = '2px solid rgba(201,168,76,0.6)';
+        t.style.outlineOffset = '2px';
+      });
+    });
+  });
 }
 </script>
 </body>
