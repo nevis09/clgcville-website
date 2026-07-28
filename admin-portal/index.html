@@ -547,6 +547,30 @@
 
     .modal-body { padding: 22px; }
 
+    /* ── IMAGE PREVIEW ──────────────────────── */
+    .img-preview-wrap { margin-top: 8px; border-radius: 9px; overflow: hidden; background: var(--surface-alt); border: 1px solid var(--border); display: none; }
+    .img-preview-wrap img { width: 100%; max-height: 180px; object-fit: cover; display: block; }
+    .img-preview-wrap .img-preview-err { padding: 12px; font-size: 12px; color: var(--text-muted); text-align: center; display: none; }
+
+    /* ── PAGE PICKER ────────────────────────── */
+    .page-picker { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
+    .page-tile {
+      padding: 7px 13px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: white;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-family: inherit;
+      color: var(--text);
+      transition: all 0.15s;
+      line-height: 1;
+    }
+    .page-tile:hover { border-color: var(--primary-light); background: var(--surface-alt); }
+    .page-tile.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .page-tile.none-tile { font-style: italic; color: var(--text-muted); }
+    .page-tile.none-tile.active { background: var(--surface-alt); color: var(--text-muted); border-color: var(--border); }
+
     /* ── TOAST ───────────────────────────────── */
     #toast-container {
       position: fixed;
@@ -1404,13 +1428,13 @@ const COLLECTION_CFG = {
     labelFn: i => i.alt || i.url || 'Untitled Photo',
     subFn:   i => [i.category, fmtDate(i.date)].filter(Boolean).join(' · ') || '—',
     fields: [
-      { label: 'Image URL', key: 'url', type: 'url', required: true,
-        hint: 'Full URL to the image — Unsplash, your own server, or a root-relative path like /assets/images/gallery/photo.jpg' },
+      { label: 'Image URL', key: 'url', type: 'url', required: true, previewImg: true,
+        hint: 'Paste a direct image URL — Unsplash link or /assets/images/gallery/filename.jpg' },
       { label: 'Alt Text / Caption', key: 'alt', type: 'text', required: true,
-        hint: 'Describe the image for accessibility and the lightbox caption' },
+        hint: 'Describe the image (used for accessibility and the lightbox caption)' },
       { label: 'Category', key: 'category', type: 'select',
         options: ['worship', 'events', 'community'] },
-      { label: 'Link to Page (optional)', key: 'link', type: 'select',
+      { label: 'Link to Page (optional)', key: 'link', type: 'page-picker',
         options: [
           '',
           '/sermons/index.html',
@@ -1422,14 +1446,13 @@ const COLLECTION_CFG = {
           '/online-giving/index.html',
           '/prayer-request/index.html',
           '/salvation/index.html',
-          '/gallery/index.html',
           '/contact/index.html',
           '/about/mission/index.html',
           '/about/pastor/index.html',
           '/about/church-history/index.html',
         ],
         optionLabels: [
-          '— No link (open lightbox) —',
+          'No link',
           'Sermons',
           'Live Stream',
           'Service Times',
@@ -1439,7 +1462,6 @@ const COLLECTION_CFG = {
           'Online Giving',
           'Prayer Request',
           'Salvation',
-          'Gallery',
           'Contact Us',
           'Mission',
           'Pastor',
@@ -1497,9 +1519,9 @@ function openAdd(section) {
   document.getElementById('modal-title').textContent = `Add ${cfg.singular}`;
   document.getElementById('modal-body').innerHTML = buildCollectionForm(section, null);
   document.getElementById('modal-overlay').style.display = 'flex';
-  // Default date = today
   const dateEl = document.getElementById('mf-date');
   if (dateEl && !dateEl.value) dateEl.value = todayISO();
+  initModalFields(section);
 }
 
 function openEdit(section, idx) {
@@ -1508,6 +1530,58 @@ function openEdit(section, idx) {
   document.getElementById('modal-title').textContent = `Edit ${cfg.singular}`;
   document.getElementById('modal-body').innerHTML = buildCollectionForm(section, item);
   document.getElementById('modal-overlay').style.display = 'flex';
+  initModalFields(section);
+}
+
+function initModalFields(section) {
+  const cfg = COLLECTION_CFG[section];
+  if (!cfg) return;
+
+  cfg.fields.forEach(f => {
+    // Page-picker: clicking a tile updates the hidden input
+    if (f.type === 'page-picker') {
+      const picker  = document.getElementById(`pp-${f.key}`);
+      const hidden  = document.getElementById(`mf-${f.key}`);
+      if (!picker || !hidden) return;
+      picker.querySelectorAll('.page-tile').forEach(tile => {
+        tile.addEventListener('click', () => {
+          picker.querySelectorAll('.page-tile').forEach(t => t.classList.remove('active'));
+          tile.classList.add('active');
+          hidden.value = tile.dataset.val;
+        });
+      });
+    }
+
+    // Image preview: show thumbnail as URL is typed
+    if (f.previewImg) {
+      const input   = document.getElementById(`mf-${f.key}`);
+      const wrap    = document.getElementById(`mf-${f.key}-preview-wrap`);
+      const img     = document.getElementById(`mf-${f.key}-preview`);
+      const errMsg  = wrap && wrap.querySelector('.img-preview-err');
+      if (!input || !wrap || !img) return;
+
+      function updatePreview() {
+        const url = input.value.trim();
+        if (!url) { wrap.style.display = 'none'; return; }
+        wrap.style.display = 'block';
+        if (errMsg) errMsg.style.display = 'none';
+        img.style.display = 'block';
+        img.src = url;
+      }
+
+      img.addEventListener('error', () => {
+        img.style.display = 'none';
+        if (errMsg) errMsg.style.display = 'block';
+      });
+      img.addEventListener('load', () => {
+        img.style.display = 'block';
+        if (errMsg) errMsg.style.display = 'none';
+      });
+
+      input.addEventListener('input', updatePreview);
+      updatePreview(); // show immediately if editing an existing item
+    }
+  });
 }
 
 function buildCollectionForm(section, item) {
@@ -1534,11 +1608,30 @@ function buildCollectionForm(section, item) {
         <label for="mf-${f.key}">${esc(f.label)}${req}</label>
         <select id="mf-${f.key}">${opts}</select>
       </div>`;
+    } else if (f.type === 'page-picker') {
+      const tiles = f.options.map((o, oi) => {
+        const label = f.optionLabels ? f.optionLabels[oi] : (o || 'No link');
+        const isNone = o === '';
+        const active = val === o ? ' active' : '';
+        return `<button type="button" class="page-tile${isNone?' none-tile':''}${active}" data-val="${esc(o)}">${esc(label)}</button>`;
+      }).join('');
+      html += `<div class="form-group">
+        <label>${esc(f.label)}</label>
+        <div class="page-picker" id="pp-${f.key}">${tiles}</div>
+        <input type="hidden" id="mf-${f.key}" value="${esc(val)}">
+      </div>`;
     } else {
+      const previewHtml = f.previewImg
+        ? `<div class="img-preview-wrap" id="mf-${f.key}-preview-wrap">
+            <img id="mf-${f.key}-preview" src="${esc(val)}" alt="Preview">
+            <div class="img-preview-err">Image could not be loaded — check the URL</div>
+           </div>`
+        : '';
       html += `<div class="form-group">
         <label for="mf-${f.key}">${esc(f.label)}${req}</label>
         <input type="${f.type}" id="mf-${f.key}" value="${esc(val)}" />
         ${f.hint ? `<div class="hint">${esc(f.hint)}</div>` : ''}
+        ${previewHtml}
       </div>`;
     }
   });
