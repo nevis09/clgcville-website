@@ -586,19 +586,76 @@
     }
     #preview-iframe { flex: 1; border: none; background: white; }
 
-    /* ── IMAGE PREVIEW ──────────────────────── */
+    /* ── IMAGE PREVIEW (modal thumbnail) ───── */
     .img-preview-wrap { margin-top: 8px; border-radius: 9px; overflow: hidden; background: var(--surface-alt); border: 1px solid var(--border); display: none; }
+    .img-preview-wrap > img { width: 100%; max-height: 180px; object-fit: cover; display: block; }
     .img-preview-wrap .img-preview-err { padding: 12px; font-size: 12px; color: var(--text-muted); text-align: center; display: none; }
-    .focal-point-wrap { position: relative; cursor: crosshair; user-select: none; }
-    .focal-point-wrap img { width: 100%; max-height: 220px; object-fit: cover; display: block; pointer-events: none; }
-    .focal-dot {
-      position: absolute; width: 20px; height: 20px;
-      border: 2.5px solid #fff; border-radius: 50%;
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.55), 0 0 12px rgba(0,0,0,0.4);
-      transform: translate(-50%,-50%); pointer-events: none;
-      transition: left 0.06s, top 0.06s;
+    .img-preview-wrap .pos-btn-row { padding: 8px; text-align: center; border-top: 1px solid var(--border); }
+
+    /* ── FOCAL EDITOR (full-screen) ──────── */
+    #focal-editor {
+      display: none; position: fixed; inset: 0; z-index: 12000;
+      flex-direction: column; background: #0b1a12;
     }
-    .focal-hint { font-size: 11px; color: var(--text-muted); padding: 5px 10px; background: var(--surface-alt); text-align: center; border-top: 1px solid var(--border); }
+    #focal-editor.open { display: flex; }
+    .fe-header {
+      display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+      padding: 13px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .fe-header-text { flex: 1; }
+    .fe-title { font-size: 15px; font-weight: 700; color: #fff; }
+    .fe-sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+    .fe-body { display: flex; flex: 1; overflow: hidden; }
+    .fe-main {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: #0d0d0d; overflow: hidden; padding: 28px;
+    }
+    .fe-img-wrap {
+      position: relative; cursor: crosshair; user-select: none;
+      border-radius: 10px; overflow: hidden; max-width: 100%;
+      box-shadow: 0 12px 60px rgba(0,0,0,0.7);
+    }
+    .fe-img-wrap img {
+      display: block; max-width: 100%; max-height: calc(100vh - 170px);
+      object-fit: cover; pointer-events: none;
+    }
+    .fe-dot {
+      position: absolute; width: 28px; height: 28px;
+      border: 3px solid #fff; border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.6), 0 0 0 5px rgba(255,255,255,0.15), 0 4px 20px rgba(0,0,0,0.8);
+      transform: translate(-50%,-50%); pointer-events: none;
+      transition: left 0.05s, top 0.05s;
+    }
+    .fe-crossline-h, .fe-crossline-v {
+      position: absolute; pointer-events: none;
+      background: rgba(255,255,255,0.12);
+    }
+    .fe-crossline-h { height: 1px; width: 100%; left: 0; transform: translateY(-50%); }
+    .fe-crossline-v { width: 1px; height: 100%; top: 0; transform: translateX(-50%); }
+    .fe-sidebar {
+      width: 210px; flex-shrink: 0; background: #131f18;
+      border-left: 1px solid rgba(255,255,255,0.07);
+      display: flex; flex-direction: column; overflow-y: auto; padding: 20px 16px; gap: 20px;
+    }
+    .fe-section-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.6px; }
+    .fe-thumb-group { display: flex; flex-direction: column; gap: 10px; }
+    .fe-thumb-item {}
+    .fe-thumb-wrap { overflow: hidden; border-radius: 6px; width: 100%; background: #000; }
+    .fe-thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .fe-thumb-wrap.fe-sq  { aspect-ratio: 1/1; }
+    .fe-thumb-wrap.fe-ls  { aspect-ratio: 3/2; }
+    .fe-thumb-wrap.fe-pt  { aspect-ratio: 2/3; }
+    .fe-thumb-name { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 4px; }
+    .fe-coords {
+      font-size: 12px; color: rgba(255,255,255,0.45); display: flex; gap: 12px;
+      padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .fe-coords strong { color: #C9A84C; }
+    .fe-footer {
+      flex-shrink: 0; padding: 12px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex; justify-content: flex-end; gap: 10px;
+    }
 
     /* ── PAGE PICKER ────────────────────────── */
     .page-picker { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
@@ -840,6 +897,54 @@
     </div>
   </div>
   <iframe id="preview-iframe" title="Page preview"></iframe>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOCAL POINT EDITOR
+═══════════════════════════════════════════ -->
+<div id="focal-editor">
+  <div class="fe-header">
+    <div class="fe-header-text">
+      <div class="fe-title">Set Image Position</div>
+      <div class="fe-sub">Click or drag the pin to focus the crop — all crops update live</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="closeFocalEditor()">✕ Cancel</button>
+  </div>
+  <div class="fe-body">
+    <div class="fe-main">
+      <div class="fe-img-wrap" id="fe-img-wrap">
+        <img id="fe-img" src="" alt="Position preview">
+        <div class="fe-crossline-h" id="fe-cl-h" style="top:50%"></div>
+        <div class="fe-crossline-v" id="fe-cl-v" style="left:50%"></div>
+        <div class="fe-dot" id="fe-dot" style="left:50%;top:50%"></div>
+      </div>
+    </div>
+    <div class="fe-sidebar">
+      <div class="fe-section-label">Live Crop Preview</div>
+      <div class="fe-thumb-group">
+        <div class="fe-thumb-item">
+          <div class="fe-thumb-wrap fe-ls"><img id="fe-th-ls" src="" alt=""></div>
+          <div class="fe-thumb-name">Gallery card (3:2)</div>
+        </div>
+        <div class="fe-thumb-item">
+          <div class="fe-thumb-wrap fe-sq"><img id="fe-th-sq" src="" alt=""></div>
+          <div class="fe-thumb-name">Square (1:1)</div>
+        </div>
+        <div class="fe-thumb-item">
+          <div class="fe-thumb-wrap fe-pt"><img id="fe-th-pt" src="" alt=""></div>
+          <div class="fe-thumb-name">Portrait (2:3)</div>
+        </div>
+      </div>
+      <div class="fe-coords">
+        <span>X: <strong id="fe-xv">50</strong>%</span>
+        <span>Y: <strong id="fe-yv">50</strong>%</span>
+      </div>
+    </div>
+  </div>
+  <div class="fe-footer">
+    <button class="btn btn-outline" onclick="closeFocalEditor()">Cancel</button>
+    <button class="btn btn-green" onclick="applyFocalEditor()">✓ Apply Position</button>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════
@@ -1665,47 +1770,13 @@ function initModalFields(section) {
       if (hidden.value) openLinkedPagePreview(hidden.value);
     }
 
-    // Image preview + focal-point picker
+    // Image preview (read-only thumbnail; positioning via focal editor)
     if (f.previewImg) {
-      const input      = document.getElementById(`mf-${f.key}`);
-      const wrap       = document.getElementById(`mf-${f.key}-preview-wrap`);
-      const img        = document.getElementById(`mf-${f.key}-preview`);
-      const errMsg     = wrap && wrap.querySelector('.img-preview-err');
-      const focalPick  = document.getElementById('focal-picker');
-      const focalDot   = document.getElementById('focal-dot');
-      const xInput     = document.getElementById('mf-x_pos');
-      const yInput     = document.getElementById('mf-y_pos');
+      const input  = document.getElementById(`mf-${f.key}`);
+      const wrap   = document.getElementById(`mf-${f.key}-preview-wrap`);
+      const img    = document.getElementById(`mf-${f.key}-preview`);
+      const errMsg = wrap && wrap.querySelector('.img-preview-err');
       if (!input || !wrap || !img) return;
-
-      function setFocal(xPct, yPct) {
-        xPct = Math.max(0, Math.min(100, Math.round(xPct)));
-        yPct = Math.max(0, Math.min(100, Math.round(yPct)));
-        if (focalDot) { focalDot.style.left = xPct + '%'; focalDot.style.top = yPct + '%'; }
-        img.style.objectPosition = xPct + '% ' + yPct + '%';
-        if (xInput) xInput.value = xPct;
-        if (yInput) yInput.value = yPct;
-      }
-
-      let isDragging = false;
-      function focalFromEvent(e) {
-        const rect = focalPick.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        setFocal(
-          (clientX - rect.left) / rect.width  * 100,
-          (clientY - rect.top)  / rect.height * 100
-        );
-      }
-
-      if (focalPick) {
-        focalPick.addEventListener('mousedown',  e => { isDragging = true; focalFromEvent(e); });
-        focalPick.addEventListener('mousemove',  e => { if (isDragging) focalFromEvent(e); });
-        focalPick.addEventListener('mouseup',    () => isDragging = false);
-        focalPick.addEventListener('mouseleave', () => isDragging = false);
-        focalPick.addEventListener('touchstart', e => { isDragging = true; focalFromEvent(e); }, { passive: true });
-        focalPick.addEventListener('touchmove',  e => { if (isDragging) focalFromEvent(e); }, { passive: true });
-        focalPick.addEventListener('touchend',   () => isDragging = false);
-      }
 
       function updatePreview() {
         const url = input.value.trim();
@@ -1718,7 +1789,6 @@ function initModalFields(section) {
 
       img.addEventListener('error', () => { img.style.display = 'none'; if (errMsg) errMsg.style.display = 'block'; });
       img.addEventListener('load',  () => { img.style.display = 'block'; if (errMsg) errMsg.style.display = 'none'; });
-
       input.addEventListener('input', updatePreview);
       updatePreview();
     }
@@ -1768,13 +1838,12 @@ function buildCollectionForm(section, item) {
       const initY = item?.y_pos ?? 50;
       const previewHtml = f.previewImg
         ? `<div class="img-preview-wrap" id="mf-${f.key}-preview-wrap">
-            <div class="focal-point-wrap" id="focal-picker">
-              <img id="mf-${f.key}-preview" src="${esc(val)}" alt="Preview"
-                   style="object-position:${initX}% ${initY}%">
-              <div class="focal-dot" id="focal-dot" style="left:${initX}%;top:${initY}%"></div>
-            </div>
-            <div class="focal-hint">👆 Click image to set crop focus — drag to reposition</div>
+            <img id="mf-${f.key}-preview" src="${esc(val)}" alt="Preview"
+                 style="object-position:${initX}% ${initY}%">
             <div class="img-preview-err">Image could not be loaded — check the URL</div>
+            <div class="pos-btn-row">
+              <button type="button" class="btn btn-outline btn-sm" onclick="openFocalEditor()">📐 Position Image</button>
+            </div>
            </div>`
         : '';
       html += `<div class="form-group">
@@ -1922,6 +1991,77 @@ function mkFN(date, title, fallback) {
 }
 
 // ── Page preview drawer ────────────────────────────
+// ── Focal-Point Editor ─────────────────────────────────────────────
+const _fe = { x: 50, y: 50, dragging: false };
+
+function openFocalEditor() {
+  const imgUrl = document.getElementById('mf-url')?.value.trim();
+  if (!imgUrl) { toast('Paste an image URL first', 'error'); return; }
+  _fe.x = parseFloat(document.getElementById('mf-x_pos')?.value) || 50;
+  _fe.y = parseFloat(document.getElementById('mf-y_pos')?.value) || 50;
+  ['fe-img','fe-th-ls','fe-th-sq','fe-th-pt'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.src = imgUrl;
+  });
+  feSyncUI();
+  document.getElementById('focal-editor').classList.add('open');
+}
+
+function closeFocalEditor() {
+  document.getElementById('focal-editor').classList.remove('open');
+}
+
+function applyFocalEditor() {
+  const x = Math.round(_fe.x), y = Math.round(_fe.y);
+  const xIn = document.getElementById('mf-x_pos');
+  const yIn = document.getElementById('mf-y_pos');
+  const thumb = document.getElementById('mf-url-preview');
+  if (xIn) xIn.value = x;
+  if (yIn) yIn.value = y;
+  if (thumb) thumb.style.objectPosition = x + '% ' + y + '%';
+  closeFocalEditor();
+}
+
+function feSyncUI() {
+  const x = _fe.x, y = _fe.y;
+  const dot = document.getElementById('fe-dot');
+  const clh = document.getElementById('fe-cl-h');
+  const clv = document.getElementById('fe-cl-v');
+  const xv  = document.getElementById('fe-xv');
+  const yv  = document.getElementById('fe-yv');
+  if (dot) { dot.style.left = x + '%'; dot.style.top = y + '%'; }
+  if (clh) clh.style.top  = y + '%';
+  if (clv) clv.style.left = x + '%';
+  if (xv)  xv.textContent = Math.round(x);
+  if (yv)  yv.textContent = Math.round(y);
+  const pos = x + '% ' + y + '%';
+  ['fe-img','fe-th-ls','fe-th-sq','fe-th-pt'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.objectPosition = pos;
+  });
+}
+
+function feEventCoords(e, wrap) {
+  const r = wrap.getBoundingClientRect();
+  const cx = e.touches ? e.touches[0].clientX : e.clientX;
+  const cy = e.touches ? e.touches[0].clientY : e.clientY;
+  _fe.x = Math.max(0, Math.min(100, (cx - r.left) / r.width  * 100));
+  _fe.y = Math.max(0, Math.min(100, (cy - r.top)  / r.height * 100));
+  feSyncUI();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const wrap = document.getElementById('fe-img-wrap');
+  if (!wrap) return;
+  wrap.addEventListener('mousedown',  e => { _fe.dragging = true;  feEventCoords(e, wrap); });
+  wrap.addEventListener('mousemove',  e => { if (_fe.dragging) feEventCoords(e, wrap); });
+  wrap.addEventListener('mouseup',    () => _fe.dragging = false);
+  wrap.addEventListener('mouseleave', () => _fe.dragging = false);
+  wrap.addEventListener('touchstart', e => { _fe.dragging = true;  feEventCoords(e, wrap); }, { passive: true });
+  wrap.addEventListener('touchmove',  e => { if (_fe.dragging) feEventCoords(e, wrap); }, { passive: true });
+  wrap.addEventListener('touchend',   () => _fe.dragging = false);
+});
+
 const _preview = { section: null, labelsOn: true };
 
 function openPreview(section) {
