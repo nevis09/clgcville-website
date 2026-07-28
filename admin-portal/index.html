@@ -719,6 +719,9 @@
     <div class="nav-item" data-s="announcements" onclick="switchSection('announcements')">
       <span class="nav-icon">📢</span> Announcements
     </div>
+    <div class="nav-item" data-s="gallery" onclick="switchSection('gallery')">
+      <span class="nav-icon">🖼️</span> Gallery
+    </div>
 
     <div class="nav-section-label">Static Pages</div>
 
@@ -1392,6 +1395,24 @@ const COLLECTION_CFG = {
       { label: 'Body',  key: 'body',  type: 'textarea', full: true, rows: 8 },
     ],
     mkFileName: i => mkFN(i.date, i.title, 'announcement'),
+  },
+  gallery: {
+    title: 'Gallery',
+    desc:  'Photo gallery — manage images by URL with category tags',
+    icon:  '🖼️',
+    singular: 'Photo',
+    labelFn: i => i.alt || i.url || 'Untitled Photo',
+    subFn:   i => [i.category, fmtDate(i.date)].filter(Boolean).join(' · ') || '—',
+    fields: [
+      { label: 'Image URL', key: 'url', type: 'url', required: true,
+        hint: 'Full URL to the image — Unsplash, your own server, or a root-relative path like /assets/images/gallery/photo.jpg' },
+      { label: 'Alt Text / Caption', key: 'alt', type: 'text', required: true,
+        hint: 'Describe the image for accessibility and the lightbox caption' },
+      { label: 'Category', key: 'category', type: 'select',
+        options: ['worship', 'events', 'community'] },
+      { label: 'Date Added', key: 'date', type: 'date' },
+    ],
+    mkFileName: i => mkFN(i.date, i.alt || 'photo', 'photo'),
   },
 };
 
