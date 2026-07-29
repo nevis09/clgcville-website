@@ -2714,7 +2714,10 @@ function deepSet(obj, path, val) {
 
 function fmtDate(d) {
   if (!d) return '';
-  try { return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  try {
+    const date = new Date(d);
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
   catch { return d; }
 }
 
