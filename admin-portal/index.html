@@ -754,6 +754,42 @@
     }
     .pimg-card-footer { padding: 7px 10px 6px; }
     .pimg-card-label { font-size: 12px; font-weight: 600; color: var(--text); display: block; }
+    /* ── SUBMISSION COLLECTIONS ──────────── */
+    .submission-tabs {
+      display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+    .submission-tab {
+      padding: 8px 12px; background: none; border: none;
+      border-bottom: 2px solid transparent; cursor: pointer;
+      font-size: 13px; font-weight: 500; color: var(--text-muted);
+      transition: color .2s, border-color .2s;
+    }
+    .submission-tab:hover { color: var(--text); }
+    .submission-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .submission-list { margin-top: 12px; }
+    .submission-week-group { margin-bottom: 20px; }
+    .submission-week-label {
+      font-size: 12px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .submission-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 14px; margin-bottom: 8px;
+      display: grid; grid-template-columns: 1fr auto auto;
+      align-items: center; gap: 12px;
+    }
+    .submission-info h4 { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
+    .submission-info p { font-size: 11px; color: var(--text-muted); margin: 0; }
+    .submission-state { text-align: center; }
+    .submission-state-badge {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      padding: 3px 7px; border-radius: 4px;
+    }
+    .submission-state-badge.active { background: rgba(34,197,94,0.15); color: #16a34a; }
+    .submission-state-badge.archived { background: rgba(107,114,128,0.15); color: #6b7280; }
+    .submission-state-badge.deleted { background: rgba(220,38,38,0.15); color: #dc2626; }
+    .submission-actions { display: flex; gap: 6px; }
     /* ── GALLERY PICKER MODAL ──────────────── */
     #gallery-picker-modal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.78);
@@ -1052,6 +1088,15 @@
       <span class="nav-icon">🖼️</span> Gallery
     </div>
 
+    <div class="nav-section-label">Submissions</div>
+
+    <div class="nav-item" data-s="prayer_requests" onclick="switchSection('prayer_requests')">
+      <span class="nav-icon">🙏</span> Prayer Requests
+    </div>
+    <div class="nav-item" data-s="testimonies" onclick="switchSection('testimonies')">
+      <span class="nav-icon">✨</span> Testimonies
+    </div>
+
     <div class="nav-section-label">Static Pages</div>
 
     <div class="nav-item" data-s="mission" onclick="switchSection('mission')">
@@ -1343,7 +1388,7 @@ async function loadSection(section) {
   area.innerHTML = '<div class="loading-state"><div class="spinner-dark"></div> Loading…</div>';
 
   try {
-    if (['settings','home','pastor','mission','history','salvation','sbs','contact_page','live','giving','sermons_page','calendar','service_times','prayer_request','gallery_page'].includes(section)) {
+    if (['settings','home','pastor','mission','history','salvation','sbs','contact_page','live','giving','sermons_page','calendar','service_times','prayer_request','gallery_page','sermons','events','announcements','gallery','prayer_requests','testimonies'].includes(section)) {
       const data = await apiGet(section);
       renderForm(section, data);
     } else {
@@ -2076,6 +2121,41 @@ const COLLECTION_CFG = {
     ],
     mkFileName: i => mkFN(i.date, i.alt || 'photo', 'photo'),
   },
+  prayer_requests: {
+    title: 'Prayer Requests',
+    desc:  'Submitted prayer requests (max 200 active, auto-archives oldest)',
+    icon:  '🙏',
+    singular: 'Prayer Request',
+    labelFn: i => i.name ? `${i.name} — ${i.request?.substring(0, 40)}…` : i.request?.substring(0, 50) + '…',
+    subFn:   i => {
+      const date = fmtDate(i.created_at);
+      const cats = (i.pray_for || []).join(', ') || '—';
+      return `${date} · ${cats}`;
+    },
+    fields: [
+      { label: 'Name',       key: 'name',      type: 'text' },
+      { label: 'Phone',      key: 'phone',     type: 'tel' },
+      { label: 'Email',      key: 'email',     type: 'email' },
+      { label: 'Categories', key: 'pray_for',  type: 'text', hint: 'Comma-separated or from submission' },
+      { label: 'Prayer Request', key: 'request', type: 'textarea', required: true, full: true, rows: 6 },
+    ],
+    mkFileName: i => mkFN(i.created_at, i.name || 'request', 'prayer-request'),
+  },
+  testimonies: {
+    title: 'Testimonies',
+    desc:  'Submitted testimonies (max 200 active, auto-archives oldest)',
+    icon:  '✨',
+    singular: 'Testimony',
+    labelFn: i => i.name ? `${i.name} — ${i.testimony?.substring(0, 40)}…` : i.testimony?.substring(0, 50) + '…',
+    subFn:   i => `${fmtDate(i.created_at)} · ${i.email || '—'}`,
+    fields: [
+      { label: 'Name',      key: 'name',     type: 'text', required: true },
+      { label: 'Email',     key: 'email',    type: 'email', required: true },
+      { label: 'Phone',     key: 'phone',    type: 'tel' },
+      { label: 'Testimony', key: 'testimony', type: 'textarea', required: true, full: true, rows: 8 },
+    ],
+    mkFileName: i => mkFN(i.created_at, i.name, 'testimony'),
+  },
 };
 
 function renderCollection(section, items) {
@@ -2101,7 +2181,70 @@ function renderCollection(section, items) {
       </div>
     </div>`;
 
-  if (isGallery) {
+  const isSubmission = ['prayer_requests', 'testimonies'].includes(section);
+
+  if (isSubmission) {
+    // Run cleanup before rendering
+    runSubmissionCleanup(section, items);
+
+    // Group by week (only show active by default, newest first)
+    const active = items.filter(i => i.state !== 'archived' && i.state !== 'deleted');
+    const archived = items.filter(i => i.state === 'archived');
+    const deleted = items.filter(i => i.state === 'deleted');
+
+    const tabs = [
+      { label: `Active (${active.length}/200)`, val: 'active' },
+      { label: `Archived (${archived.length})`, val: 'archived' },
+      { label: `Deleted (${deleted.length})`, val: 'deleted' }
+    ];
+    const currentTab = APP.submissionTab || 'active';
+    const tabItems = {active, archived, deleted}[currentTab] || active;
+
+    html += `<div class="submission-tabs">`;
+    tabs.forEach(t => {
+      html += `<button class="submission-tab${currentTab === t.val ? ' active' : ''}"
+                     onclick="setSubmissionTab('${section}','${t.val}')">${t.label}</button>`;
+    });
+    html += `</div>`;
+
+    html += `<div class="submission-list">`;
+    if (tabItems.length === 0) {
+      const msg = currentTab === 'active' ? `No ${cfg.title.toLowerCase()} yet.` : `No ${currentTab} ${cfg.title.toLowerCase()}.`;
+      html += `<div class="empty-state"><div class="empty-icon">${cfg.icon}</div><p>${msg}</p></div>`;
+    } else {
+      // Sort newest first and group by week
+      const sorted = [...tabItems].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+      const grouped = groupByWeek(sorted);
+
+      Object.entries(grouped).forEach(([week, weekItems]) => {
+        html += `<div class="submission-week-group">
+          <h3 class="submission-week-label">${week}</h3>`;
+        weekItems.forEach((item, idx) => {
+          const actualIdx = items.indexOf(item);
+          const stateBadge = `<span class="submission-state-badge ${item.state}">${item.state === 'archived' ? '📦' : item.state === 'deleted' ? '❌' : '✓'} ${item.state}</span>`;
+          html += `<div class="submission-item">
+            <div class="submission-info">
+              <h4>${esc(cfg.labelFn(item))}</h4>
+              <p>${esc(cfg.subFn(item))}</p>
+            </div>
+            <div class="submission-state">${stateBadge}</div>
+            <div class="submission-actions">
+              <button class="btn btn-outline btn-sm" onclick="openEdit('${section}',${actualIdx})">✏️</button>
+              ${item.state === 'active'
+                ? `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'archived')">📦</button>`
+                : item.state === 'archived'
+                ? `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'active')">↩️</button>`
+                : `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'active')">↩️</button>`}
+              <button class="btn btn-danger btn-sm" onclick="confirmDelete('${section}',${actualIdx})" title="${item.state === 'deleted' ? 'Permanently delete' : 'Delete'}">🗑️</button>
+            </div>
+          </div>`;
+        });
+        html += `</div>`;
+      });
+    }
+    html += `</div>`;
+
+  } else if (isGallery) {
     // Count each bucket from the full unfiltered cache
     const all = APP._galleryAll || items;
     const pubCount  = all.filter(i => i.visibility !== 'private').length;
@@ -2178,6 +2321,84 @@ function renderCollection(section, items) {
 function setGalleryTab(tab) {
   APP.galleryTab = tab;
   renderCollection('gallery', APP._galleryAll || []);
+}
+
+function setSubmissionTab(section, tab) {
+  APP.submissionTab = tab;
+  renderCollection(section, APP.collectionCache[section] || []);
+}
+
+function groupByWeek(items) {
+  const now = new Date();
+  const groups = {};
+  const weekLabels = ['This Week', '2 weeks ago', '3 weeks ago', '4 weeks ago', 'Older'];
+
+  items.forEach(item => {
+    const date = new Date(item.created_at);
+    const daysAgo = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    let week = 'Older';
+    if (daysAgo < 7) week = 'This Week';
+    else if (daysAgo < 14) week = '2 weeks ago';
+    else if (daysAgo < 21) week = '3 weeks ago';
+    else if (daysAgo < 28) week = '4 weeks ago';
+
+    if (!groups[week]) groups[week] = [];
+    groups[week].push(item);
+  });
+
+  const ordered = {};
+  weekLabels.forEach(label => { if (groups[label]) ordered[label] = groups[label]; });
+  return ordered;
+}
+
+function runSubmissionCleanup(section, items) {
+  const lastCleanup = localStorage.getItem(`submission_cleanup_${section}`);
+  const now = Date.now();
+  if (lastCleanup && now - parseInt(lastCleanup) < 48 * 60 * 60 * 1000) return; // Skip if run within 48h
+
+  const updated = items.filter(item => {
+    if (item.state === 'archived') {
+      const archivedAt = new Date(item.archived_at);
+      if (now - archivedAt.getTime() > 30 * 24 * 60 * 60 * 1000) return false; // Delete if > 30 days
+    } else if (item.state === 'deleted') {
+      const deletedAt = new Date(item.deleted_at);
+      if (now - deletedAt.getTime() > 14 * 24 * 60 * 60 * 1000) return false; // Delete if > 14 days
+    }
+    return true;
+  });
+
+  if (updated.length !== items.length) {
+    APP.collectionCache[section] = updated;
+    saveCollection(section, updated);
+  }
+
+  localStorage.setItem(`submission_cleanup_${section}`, now.toString());
+}
+
+function toggleSubmissionState(section, idx, newState) {
+  const items = APP.collectionCache[section];
+  if (!items || !items[idx]) return;
+
+  const item = items[idx];
+  if (newState === 'archived' && item.state === 'active') {
+    item.state = 'archived';
+    item.archived_at = new Date().toISOString();
+    // Auto-archive oldest if we exceed 200 active
+    const activeCount = items.filter(i => i.state === 'active').length;
+    if (activeCount > 200) {
+      const oldest = items.filter(i => i.state === 'active').sort((a,b) => new Date(a.created_at) - new Date(b.created_at))[0];
+      if (oldest) {
+        oldest.state = 'archived';
+        oldest.archived_at = new Date().toISOString();
+      }
+    }
+  } else if (newState === 'active' && (item.state === 'archived' || item.state === 'deleted')) {
+    item.state = 'active';
+    item.last_touched_at = new Date().toISOString();
+  }
+
+  saveCollection(section, items);
+  renderCollection(section, items);
 }
 
 
