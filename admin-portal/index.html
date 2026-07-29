@@ -3228,15 +3228,55 @@ function openSubmissionModal(itemJson, section, idx) {
 
   let content = '';
   if (section === 'prayer_requests') {
-    content = `<strong>Prayer Request:</strong> ${item.request || '—'}<br><br>`;
-    if (item.pray_for && item.pray_for.length) content += `<strong>Categories:</strong> ${item.pray_for.join(', ')}<br>`;
-    if (item.email) content += `<strong>Email:</strong> ${item.email}<br>`;
-    if (item.phone) content += `<strong>Phone:</strong> ${item.phone}`;
+    content = `
+      <div style="margin-bottom:28px;">
+        <h3 style="font-size:13px;text-transform:uppercase;color:#999;letter-spacing:0.5px;margin:0 0 12px;font-weight:600;">Prayer Request</h3>
+        <p style="line-height:1.7;color:#333;margin:0;white-space:pre-wrap;">${item.request || '—'}</p>
+      </div>
+    `;
+
+    if (item.pray_for && item.pray_for.length) {
+      content += `
+        <div style="margin-bottom:28px;">
+          <h3 style="font-size:13px;text-transform:uppercase;color:#999;letter-spacing:0.5px;margin:0 0 12px;font-weight:600;">Prayer Categories</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            ${item.pray_for.map(cat => `<span style="background:#f0f0f0;padding:6px 12px;border-radius:6px;font-size:14px;color:#333;">${cat}</span>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    if (item.email || item.phone) {
+      content += `
+        <div style="padding-top:20px;border-top:1px solid #eee;">
+          <h3 style="font-size:13px;text-transform:uppercase;color:#999;letter-spacing:0.5px;margin:0 0 16px;font-weight:600;">Contact Information</h3>
+          <div style="display:grid;gap:12px;">
+            ${item.email ? `<div><span style="color:#999;font-size:13px;">Email</span><br><a href="mailto:${item.email}" style="color:#1B4332;text-decoration:none;font-weight:500;">${item.email}</a></div>` : ''}
+            ${item.phone ? `<div><span style="color:#999;font-size:13px;">Phone</span><br><span style="color:#333;font-weight:500;">${item.phone}</span></div>` : ''}
+          </div>
+        </div>
+      `;
+    }
   } else if (section === 'testimonies') {
-    content = `<strong>Testimony:</strong> ${item.testimony || '—'}<br><br>`;
-    if (item.email) content += `<strong>Email:</strong> ${item.email}<br>`;
-    if (item.phone) content += `<strong>Phone:</strong> ${item.phone}<br>`;
-    if (item.permission) content += `<strong>Permission:</strong> Yes, may be shared publicly`;
+    content = `
+      <div style="margin-bottom:28px;">
+        <h3 style="font-size:13px;text-transform:uppercase;color:#999;letter-spacing:0.5px;margin:0 0 12px;font-weight:600;">Testimony</h3>
+        <p style="line-height:1.7;color:#333;margin:0;white-space:pre-wrap;">${item.testimony || '—'}</p>
+      </div>
+    `;
+
+    if (item.email || item.phone || item.permission) {
+      content += `
+        <div style="padding-top:20px;border-top:1px solid #eee;">
+          <h3 style="font-size:13px;text-transform:uppercase;color:#999;letter-spacing:0.5px;margin:0 0 16px;font-weight:600;">Contact & Permissions</h3>
+          <div style="display:grid;gap:12px;">
+            ${item.email ? `<div><span style="color:#999;font-size:13px;">Email</span><br><a href="mailto:${item.email}" style="color:#1B4332;text-decoration:none;font-weight:500;">${item.email}</a></div>` : ''}
+            ${item.phone ? `<div><span style="color:#999;font-size:13px;">Phone</span><br><span style="color:#333;font-weight:500;">${item.phone}</span></div>` : ''}
+            ${item.permission ? `<div><span style="color:#999;font-size:13px;">Sharing Permission</span><br><span style="color:#16A34A;font-weight:500;">✓ May be shared publicly</span></div>` : ''}
+          </div>
+        </div>
+      `;
+    }
   }
 
   document.getElementById('modal-content').innerHTML = content;
