@@ -2221,23 +2221,29 @@ function renderCollection(section, items) {
           <h3 class="submission-week-label">${week}</h3>`;
         weekItems.forEach((item, idx) => {
           const actualIdx = items.indexOf(item);
-          const stateBadge = `<span class="submission-state-badge ${item.state}">${item.state === 'archived' ? '📦' : item.state === 'deleted' ? '❌' : '✓'} ${item.state}</span>`;
-          html += `<div class="submission-item">
-            <div class="submission-info">
-              <h4>${esc(cfg.labelFn(item))}</h4>
-              <p>${esc(cfg.subFn(item))}</p>
-            </div>
-            <div class="submission-state">${stateBadge}</div>
-            <div class="submission-actions">
-              <button class="btn btn-outline btn-sm" onclick="openEdit('${section}',${actualIdx})">✏️</button>
-              ${item.state === 'active'
-                ? `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'archived')">📦</button>`
-                : item.state === 'archived'
-                ? `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'active')">↩️</button>`
-                : `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'active')">↩️</button>`}
-              <button class="btn btn-danger btn-sm" onclick="confirmDelete('${section}',${actualIdx})" title="${item.state === 'deleted' ? 'Permanently delete' : 'Delete'}">🗑️</button>
-            </div>
-          </div>`;
+          try {
+            const label = cfg.labelFn ? cfg.labelFn(item) : item.name || 'Untitled';
+            const sub = cfg.subFn ? cfg.subFn(item) : '—';
+            const stateBadge = `<span class="submission-state-badge ${item.state}">${item.state === 'archived' ? '📦' : item.state === 'deleted' ? '❌' : '✓'} ${item.state}</span>`;
+            html += `<div class="submission-item">
+              <div class="submission-info">
+                <h4>${esc(label)}</h4>
+                <p>${esc(sub)}</p>
+              </div>
+              <div class="submission-state">${stateBadge}</div>
+              <div class="submission-actions">
+                <button class="btn btn-outline btn-sm" onclick="openEdit('${section}',${actualIdx})">✏️</button>
+                ${item.state === 'active'
+                  ? `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'archived')">📦</button>`
+                  : item.state === 'archived'
+                  ? `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'active')">↩️</button>`
+                  : `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'active')">↩️</button>`}
+                <button class="btn btn-danger btn-sm" onclick="confirmDelete('${section}',${actualIdx})" title="${item.state === 'deleted' ? 'Permanently delete' : 'Delete'}">🗑️</button>
+              </div>
+            </div>`;
+          } catch (e) {
+            console.error('Error rendering submission:', e, item);
+          }
         });
         html += `</div>`;
       });
