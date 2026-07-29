@@ -91,9 +91,18 @@ export async function onRequest(context) {
     });
 
     if (!commitRes.ok) {
-      const error = await commitRes.text();
-      console.error('GitHub commit error:', error);
-      return new Response(JSON.stringify({ error: 'Failed to save submission' }), { status: 500 });
+      const errorText = await commitRes.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        console.error('GitHub commit error:', errorJson);
+        return new Response(JSON.stringify({
+          error: 'GitHub API error: ' + (errorJson.message || 'Unknown error'),
+          details: errorJson
+        }), { status: 500 });
+      } catch (e) {
+        console.error('GitHub commit error (text):', errorText);
+        return new Response(JSON.stringify({ error: 'Failed to save submission: ' + errorText }), { status: 500 });
+      }
     }
 
     return new Response(JSON.stringify({ success: true, id: submission.id }), {
