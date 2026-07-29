@@ -2228,11 +2228,12 @@ function renderCollection(section, items) {
           const actualIdx = items.indexOf(item);
           try {
             const name = item.name || 'Anonymous';
+            const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', {day:'numeric',month:'short',year:'numeric'}) : '—';
             const stateBadge = `<span class="submission-state-badge ${item.state}">${item.state === 'archived' ? '📦' : item.state === 'deleted' ? '❌' : '✓'} ${item.state}</span>`;
             html += `<div class="submission-item" onclick="openSubmissionModal('${esc(JSON.stringify(item).replace(/'/g, "\\'"))}','${section}',${actualIdx})" style="cursor:pointer;">
               <div class="submission-info">
                 <h4>${esc(name)}</h4>
-                <p style="font-size:0.85rem;color:#999;">${esc(item.state)} • Click to view</p>
+                <p style="font-size:0.85rem;color:#999;">${dateStr} • ${esc(item.state)} • Click to view</p>
               </div>
               <div class="submission-state">${stateBadge}</div>
               <div class="submission-actions">
