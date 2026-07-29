@@ -11,33 +11,18 @@ export async function onRequest(context) {
       return new Response(JSON.stringify({ error: 'Invalid collection' }), { status: 400 });
     }
 
-    // Get existing collection from GitHub
-    const env = context.env;
+    // Use Cloudflare KV Storage instead of GitHub
+    const kv = context.env.SUBMISSIONS;
 
-    // Check if token is set
-    if (!env.GITHUB_TOKEN) {
-      return new Response(JSON.stringify({ error: 'GITHUB_TOKEN environment variable not set' }), { status: 500 });
-    }
-
-    const repoOwner = 'nevis09';
-    const repoName = 'clgcville-website';
-    const branch = 'main';
-
-    // Fetch current collection data
-    const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/_data/${collection}.json?ref=${branch}`;
-    const headers = {
-      'Authorization': `token ${env.GITHUB_TOKEN}`,
-      'Accept': 'application/vnd.github.v3.raw'
-    };
-
+    // Get existing submissions from KV
     let items = [];
     try {
-      const res = await fetch(url, { headers });
-      if (res.ok) {
-        const content = await res.text();
-        items = JSON.parse(content);
+      const kvData = await kv.get(collection);
+      if (kvData) {
+        items = JSON.parse(kvData);
       }
     } catch (e) {
+      console.error('Error reading from KV:', e);
       items = [];
     }
 
@@ -60,50 +45,8 @@ export async function onRequest(context) {
       }
     }
 
-    // Commit to GitHub
-    const message = `Add ${collection} submission from ${data.name || 'Anonymous'}`;
-    const content = Buffer.from(JSON.stringify(items, null, 2)).toString('base64');
-
-    // Get current file SHA
-    const getRes = await fetch(url, { headers });
-    let sha = null;
-    if (getRes.ok) {
-      const fileData = await getRes.json();
-      sha = fileData.sha;
-    }
-
-    const commitData = {
-      message,
-      content,
-      branch,
-      ...(sha && { sha })
-    };
-
-    const commitUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/_data/${collection}.json`;
-    const commitRes = await fetch(commitUrl, {
-      method: 'PUT',
-      headers: {
-        ...headers,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(commitData)
-    });
-
-    if (!commitRes.ok) {
-      const errorText = await commitRes.text();
-      try {
-        const errorJson = JSON.parse(errorText);
-        console.error('GitHub commit error:', errorJson);
-        return new Response(JSON.stringify({
-          error: 'GitHub API error: ' + (errorJson.message || 'Unknown error'),
-          details: errorJson
-        }), { status: 500 });
-      } catch (e) {
-        console.error('GitHub commit error (text):', errorText);
-        return new Response(JSON.stringify({ error: 'Failed to save submission: ' + errorText }), { status: 500 });
-      }
-    }
+    // Save to KV (instant, no timeout)
+    await kv.put(collection, JSON.stringify(items));
 
     return new Response(JSON.stringify({ success: true, id: submission.id }), {
       status: 200,

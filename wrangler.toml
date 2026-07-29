@@ -3,9 +3,12 @@ type = "javascript"
 main = "src/index.js"
 compatibility_date = "2024-01-01"
 
+# KV Namespace binding for form submissions
+[[kv_namespaces]]
+binding = "SUBMISSIONS"
+id = "submissions"
+preview_id = "submissions-preview"
+
 # Environment variables for all environments
 [env.production]
 vars = { }
-
-# Secrets are configured in Cloudflare Dashboard
-# GITHUB_TOKEN should be set as a secret in Cloudflare Pages project settings

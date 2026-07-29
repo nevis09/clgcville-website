@@ -51,6 +51,22 @@ export async function onRequestGet(context) {
   const url     = new URL(request.url);
   const section = url.searchParams.get('section');
 
+  // Submission collections stored in Cloudflare KV
+  if (['prayer_requests', 'testimonies'].includes(section)) {
+    const kv = context.env.SUBMISSIONS;
+    try {
+      const kvData = await kv.get(section);
+      if (kvData) {
+        const data = JSON.parse(kvData);
+        return json({ items: Array.isArray(data) ? data : [] });
+      }
+      return json({ items: [] });
+    } catch (e) {
+      console.error('Error reading from KV:', e);
+      return json({ items: [] });
+    }
+  }
+
   // Single-file section — read from raw GitHub (no auth needed for public repo)
   if (SINGLE[section]) {
     const res = await fetch(
@@ -58,10 +74,6 @@ export async function onRequestGet(context) {
     );
     if (!res.ok) return json({ error: 'File not found' }, 404);
     const data = await res.json();
-    // Wrap collection arrays in { items: [...] } for consistency
-    if (['prayer_requests', 'testimonies'].includes(section) && Array.isArray(data)) {
-      return json({ items: data });
-    }
     return json(data);
   }
 
