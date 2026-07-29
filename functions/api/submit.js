@@ -18,10 +18,28 @@ export async function onRequest(context) {
       submitted_at: new Date().toISOString()
     };
 
-    // Log submission (visible in Cloudflare logs)
-    console.log(`New ${collection} submission:`, submission);
+    // Try to save to KV if available
+    try {
+      const kv = context.env?.SUBMISSIONS;
+      if (kv) {
+        let items = [];
+        try {
+          const existing = await kv.get(collection);
+          if (existing) items = JSON.parse(existing);
+        } catch (e) {
+          console.warn('Could not read from KV:', e.message);
+        }
+        items.unshift(submission);
+        await kv.put(collection, JSON.stringify(items));
+        console.log(`Saved to KV: ${collection}`);
+      } else {
+        console.warn('KV binding SUBMISSIONS not available');
+      }
+    } catch (kvErr) {
+      console.error('KV error:', kvErr.message);
+    }
 
-    // Return success immediately
+    // Return success regardless of KV status
     return new Response(JSON.stringify({
       success: true,
       id: submission.id,
