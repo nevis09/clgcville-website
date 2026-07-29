@@ -2170,6 +2170,7 @@ function renderCollection(section, items) {
   const sorted = [...visible].sort((a,b) => (b.date||'') > (a.date||'') ? 1 : -1);
 
   const collPreviewUrl = SECTION_URLS[section];
+  const isSubmission = ['prayer_requests', 'testimonies'].includes(section);
   const addLabel = isGallery && activeTab === 'private' ? '+ Add Private Photo' : `+ Add ${cfg.singular}`;
 
   let html = `
@@ -2177,11 +2178,11 @@ function renderCollection(section, items) {
       <div><h2>${cfg.title}</h2><p>${cfg.desc}</p></div>
       <div style="display:flex;gap:8px;align-items:center;">
         ${collPreviewUrl ? `<button class="btn btn-outline btn-sm" onclick="openPreview('${section}')">👁 Preview page</button>` : ''}
-        <button class="btn btn-green" onclick="openAdd('${section}')">${addLabel}</button>
+        ${!isSubmission ? `<button class="btn btn-green" onclick="openAdd('${section}')">${addLabel}</button>` : ''}
       </div>
     </div>`;
 
-  const isSubmission = ['prayer_requests', 'testimonies'].includes(section);
+
 
   if (isSubmission) {
     // Run cleanup before rendering
@@ -2297,7 +2298,8 @@ function renderCollection(section, items) {
       });
       html += `</div>`;
     }
-  } else {
+  } else if (!isSubmission) {
+    // Regular collection view (not submissions - submissions use modal view above)
     html += `<div class="collection-list">`;
     if (sorted.length === 0) {
       html += `<div class="empty-state">
