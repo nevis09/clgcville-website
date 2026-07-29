@@ -79,28 +79,36 @@ export async function onRequestGet(context) {
 
   // Collection folder — list files via GitHub API
   if (FOLDERS[section]) {
-    const listRes = await ghFetch(env, `contents/${FOLDERS[section]}`);
-    if (listRes.status === 404) return json({ items: [] });
-    if (!listRes.ok)            return json({ error: 'Could not list files' }, 502);
+    try {
+      const listRes = await ghFetch(env, `contents/${FOLDERS[section]}`);
+      if (listRes.status === 404) return json({ items: [] });
+      if (!listRes.ok) {
+        console.warn(`GitHub API error for ${section}:`, listRes.status, listRes.statusText);
+        return json({ items: [] });
+      }
 
-    const files = await listRes.json();
-    if (!Array.isArray(files))  return json({ items: [] });
+      const files = await listRes.json();
+      if (!Array.isArray(files))  return json({ items: [] });
 
-    const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+      const jsonFiles = files.filter(f => f.name.endsWith('.json'));
 
-    // Fetch each file's content in parallel
-    const items = await Promise.all(
-      jsonFiles.map(async f => {
-        const r = await fetch(
-          `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${f.path}?cb=${Date.now()}`
-        );
-        if (!r.ok) return null;
-        const data = await r.json();
-        return { ...data, _path: f.path };
-      })
-    );
+      // Fetch each file's content in parallel
+      const items = await Promise.all(
+        jsonFiles.map(async f => {
+          const r = await fetch(
+            `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${f.path}?cb=${Date.now()}`
+          );
+          if (!r.ok) return null;
+          const data = await r.json();
+          return { ...data, _path: f.path };
+        })
+      );
 
-    return json({ items: items.filter(Boolean) });
+      return json({ items: items.filter(Boolean) });
+    } catch (err) {
+      console.error(`Error loading ${section}:`, err.message);
+      return json({ items: [] });
+    }
   }
 
   return json({ error: `Unknown section: "${section}"` }, 400);
