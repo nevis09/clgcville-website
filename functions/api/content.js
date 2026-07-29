@@ -26,6 +26,8 @@ const SINGLE = {
   contact_page: '_data/contact_page.json',
   live:         '_data/live.json',
   giving:       '_data/giving.json',
+  prayer_requests: '_data/prayer_requests.json',
+  testimonies: '_data/testimonies.json',
 };
 
 // Collection folder sections
@@ -56,6 +58,10 @@ export async function onRequestGet(context) {
     );
     if (!res.ok) return json({ error: 'File not found' }, 404);
     const data = await res.json();
+    // Wrap collection arrays in { items: [...] } for consistency
+    if (['prayer_requests', 'testimonies'].includes(section) && Array.isArray(data)) {
+      return json({ items: data });
+    }
     return json(data);
   }
 
