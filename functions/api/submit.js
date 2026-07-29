@@ -13,6 +13,12 @@ export async function onRequest(context) {
 
     // Get existing collection from GitHub
     const env = context.env;
+
+    // Check if token is set
+    if (!env.GITHUB_TOKEN) {
+      return new Response(JSON.stringify({ error: 'GITHUB_TOKEN environment variable not set' }), { status: 500 });
+    }
+
     const repoOwner = 'nevis09';
     const repoName = 'clgcville-website';
     const branch = 'main';
