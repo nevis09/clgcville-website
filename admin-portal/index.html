@@ -2219,26 +2219,28 @@ function renderCollection(section, items) {
       Object.entries(grouped).forEach(([week, weekItems]) => {
         html += `<div class="submission-week-group">
           <h3 class="submission-week-label">${week}</h3>`;
+        // Deduplicate by ID
+        const seen = new Set();
         weekItems.forEach((item, idx) => {
+          if (seen.has(item.id)) return;
+          seen.add(item.id);
           const actualIdx = items.indexOf(item);
           try {
-            const label = cfg.labelFn ? cfg.labelFn(item) : item.name || 'Untitled';
-            const sub = cfg.subFn ? cfg.subFn(item) : '—';
+            const name = item.name || 'Anonymous';
             const stateBadge = `<span class="submission-state-badge ${item.state}">${item.state === 'archived' ? '📦' : item.state === 'deleted' ? '❌' : '✓'} ${item.state}</span>`;
-            html += `<div class="submission-item">
+            html += `<div class="submission-item" onclick="openSubmissionModal('${esc(JSON.stringify(item).replace(/'/g, "\\'"))}','${section}',${actualIdx})" style="cursor:pointer;">
               <div class="submission-info">
-                <h4>${esc(label)}</h4>
-                <p>${esc(sub)}</p>
+                <h4>${esc(name)}</h4>
+                <p style="font-size:0.85rem;color:#999;">${esc(item.state)} • Click to view</p>
               </div>
               <div class="submission-state">${stateBadge}</div>
               <div class="submission-actions">
-                <button class="btn btn-outline btn-sm" onclick="openEdit('${section}',${actualIdx})">✏️</button>
                 ${item.state === 'active'
-                  ? `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'archived')">📦</button>`
+                  ? `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); toggleSubmissionState('${section}',${actualIdx},'archived')">Archive</button>`
                   : item.state === 'archived'
-                  ? `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'active')">↩️</button>`
-                  : `<button class="btn btn-outline btn-sm" onclick="toggleSubmissionState('${section}',${actualIdx},'active')">↩️</button>`}
-                <button class="btn btn-danger btn-sm" onclick="confirmDelete('${section}',${actualIdx})" title="${item.state === 'deleted' ? 'Permanently delete' : 'Delete'}">🗑️</button>
+                  ? `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); toggleSubmissionState('${section}',${actualIdx},'active')">Restore</button>`
+                  : `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); toggleSubmissionState('${section}',${actualIdx},'active')">Restore</button>`}
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openSubmissionModal('${esc(JSON.stringify(item).replace(/'/g, "\\'"))}','${section}',${actualIdx})">View</button>
               </div>
             </div>`;
           } catch (e) {
@@ -3211,6 +3213,69 @@ function syncPreviewContent() {
     });
   });
 }
+
+// Submission modal
+function openSubmissionModal(itemJson, section, idx) {
+  const item = JSON.parse(itemJson);
+  const modal = document.getElementById('submission-modal');
+  if (!modal) return;
+
+  document.getElementById('modal-title').textContent = item.name || 'Anonymous';
+  document.getElementById('modal-section').textContent = section.replace(/_/g, ' ');
+  document.getElementById('modal-date').textContent = item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', {day:'numeric',month:'short',year:'numeric'}) : '—';
+
+  let content = '';
+  if (section === 'prayer_requests') {
+    content = `<strong>Prayer Request:</strong> ${item.request || '—'}<br><br>`;
+    if (item.pray_for && item.pray_for.length) content += `<strong>Categories:</strong> ${item.pray_for.join(', ')}<br>`;
+    if (item.email) content += `<strong>Email:</strong> ${item.email}<br>`;
+    if (item.phone) content += `<strong>Phone:</strong> ${item.phone}`;
+  } else if (section === 'testimonies') {
+    content = `<strong>Testimony:</strong> ${item.testimony || '—'}<br><br>`;
+    if (item.email) content += `<strong>Email:</strong> ${item.email}<br>`;
+    if (item.phone) content += `<strong>Phone:</strong> ${item.phone}<br>`;
+    if (item.permission) content += `<strong>Permission:</strong> Yes, may be shared publicly`;
+  }
+
+  document.getElementById('modal-content').innerHTML = content;
+  document.getElementById('modal-delete-btn').onclick = () => {
+    if (confirm('Permanently delete this submission?')) {
+      confirmDelete(section, idx);
+      closeSubmissionModal();
+    }
+  };
+  document.getElementById('modal-archive-btn').onclick = () => {
+    toggleSubmissionState(section, idx, item.state === 'active' ? 'archived' : 'active');
+    closeSubmissionModal();
+  };
+
+  modal.style.display = 'flex';
+}
+
+function closeSubmissionModal() {
+  document.getElementById('submission-modal').style.display = 'none';
+}
 </script>
+
+<!-- Submission Modal -->
+<div id="submission-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:12px;padding:32px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:24px;">
+      <div>
+        <h2 id="modal-title" style="margin:0 0 8px;font-size:24px;"></h2>
+        <p id="modal-section" style="margin:0;font-size:14px;color:#999;"></p>
+        <p id="modal-date" style="margin:4px 0 0;font-size:13px;color:#bbb;"></p>
+      </div>
+      <button onclick="closeSubmissionModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;">&times;</button>
+    </div>
+    <div id="modal-content" style="line-height:1.6;margin-bottom:32px;color:#333;"></div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;">
+      <button id="modal-delete-btn" class="btn btn-danger" style="background:#DC2626;color:white;padding:10px 16px;border:none;border-radius:6px;cursor:pointer;">Delete</button>
+      <button id="modal-archive-btn" class="btn btn-outline" style="padding:10px 16px;border:1px solid #ddd;background:white;border-radius:6px;cursor:pointer;">Archive</button>
+      <button onclick="closeSubmissionModal()" class="btn" style="padding:10px 16px;background:#1B4332;color:white;border:none;border-radius:6px;cursor:pointer;">Close</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
