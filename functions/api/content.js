@@ -26,6 +26,11 @@ const SINGLE = {
   contact_page: '_data/contact_page.json',
   live:         '_data/live.json',
   giving:       '_data/giving.json',
+  service_times: '_data/service_times.json',
+  calendar:     '_data/calendar.json',
+  prayer_request: '_data/prayer_request.json',
+  gallery_page: '_data/gallery_page.json',
+  sermons_page: '_data/sermons_page.json',
   prayer_requests: '_data/prayer_requests.json',
   testimonies: '_data/testimonies.json',
 };

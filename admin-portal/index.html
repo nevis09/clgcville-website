@@ -234,6 +234,24 @@
       height: 100vh;
     }
 
+    .mobile-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 100%;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 19px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .sidebar-backdrop {
+      display: none;
+    }
+
     /* Header */
     .dash-header {
       grid-column: 1 / -1;
@@ -988,6 +1006,106 @@
       background: white;
       border-radius: 12px;
     }
+
+    /* ── MOBILE RESPONSIVE ───────────────────── */
+    @media (max-width: 768px) {
+      #dashboard {
+        grid-template-columns: 1fr;
+        grid-template-rows: 56px 1fr;
+      }
+
+      .mobile-menu-btn { display: flex; }
+
+      .header-brand {
+        width: auto;
+        padding: 0 10px 0 4px;
+        border-right: none;
+      }
+
+      .brand-text { font-size: 13px; }
+      .brand-text span { font-size: 9px; }
+
+      .header-meta { display: none; }
+
+      .header-right { gap: 6px; padding-right: 12px; }
+
+      .view-site-link span.vs-label { display: none; }
+      .view-site-link { padding: 6px 9px; }
+
+      #sidebar {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        bottom: 0;
+        width: 78vw;
+        max-width: 280px;
+        z-index: 500;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: 6px 0 24px rgba(0,0,0,0.3);
+      }
+
+      #sidebar.open { transform: translateX(0); }
+
+      .sidebar-backdrop {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 400;
+      }
+
+      .sidebar-backdrop.show { display: block; }
+
+      #content-area { padding: 16px; }
+
+      .section-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .section-header .btn { width: 100%; justify-content: center; }
+
+      .card { padding: 16px; }
+
+      .form-grid { grid-template-columns: 1fr; }
+
+      .two-col-grid, .gallery-grid, .pimg-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+      .collection-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .item-actions { width: 100%; justify-content: flex-end; flex-wrap: wrap; }
+
+      .form-actions {
+        flex-wrap: wrap;
+      }
+
+      .save-note { margin-left: 0; width: 100%; order: 3; }
+
+      #modal-overlay { padding: 0; align-items: flex-end; }
+
+      .modal {
+        max-width: 100%;
+        width: 100%;
+        max-height: 90vh;
+        border-radius: 14px 14px 0 0;
+      }
+
+      #preview-drawer.open { width: 100vw; }
+
+      .submission-tabs { flex-wrap: wrap; }
+    }
+
+    @media (max-width: 420px) {
+      .two-col-grid, .gallery-grid, .pimg-grid { grid-template-columns: 1fr !important; }
+      .brand-text span { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -1036,6 +1154,7 @@
 
   <!-- Header -->
   <header class="dash-header">
+    <button class="mobile-menu-btn" id="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
     <div class="header-brand">
       <div class="brand-icon">✝️</div>
       <div class="brand-text">
@@ -1053,7 +1172,7 @@
 
     <div class="header-right">
       <a href="https://clgcville.org" target="_blank" rel="noopener" class="view-site-link">
-        🌐 View Site
+        🌐 <span class="vs-label">View Site</span>
       </a>
       <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>
     </div>
@@ -1130,6 +1249,8 @@
       <span class="nav-icon">🙏</span> Prayer Request Form Page
     </div>
   </aside>
+
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
 
   <!-- Main content -->
   <main id="content-area">
@@ -1338,6 +1459,19 @@ function switchSection(section) {
     el.classList.toggle('active', el.dataset.s === section);
   });
   loadSection(section);
+  closeSidebar();
+}
+
+// ── Mobile sidebar toggle ───────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-backdrop').classList.toggle('show');
+}
+
+function closeSidebar() {
+  if (window.innerWidth > 768) return;
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('show');
 }
 
 // ── API helpers ────────────────────────────────────
