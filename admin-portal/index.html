@@ -2450,7 +2450,11 @@ function renderCollection(section, items) {
 
   html += '</div>';
   document.getElementById('content-area').innerHTML = html;
-  APP.collectionCache[section] = sorted;
+  // Submissions manage their own array order (insertion order from KV) — indexOf-based
+  // idx tracking for Archive/Restore/Delete would desync if we reordered the cache here.
+  if (!isSubmission) {
+    APP.collectionCache[section] = sorted;
+  }
 }
 
 function setGalleryTab(tab) {
