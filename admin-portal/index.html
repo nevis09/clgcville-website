@@ -1516,7 +1516,7 @@ async function loadSection(section) {
   area.innerHTML = '<div class="loading-state"><div class="spinner-dark"></div> Loading…</div>';
 
   try {
-    if (['settings','home','pastor','mission','history','salvation','sbs','contact_page','live','giving','calendar','service_times','prayer_request','sermons','events','announcements','gallery'].includes(section)) {
+    if (['settings','home','pastor','mission','history','salvation','sbs','contact_page','live','giving','calendar','service_times','prayer_request'].includes(section)) {
       const data = await apiGet(section);
       renderForm(section, data);
     } else {
