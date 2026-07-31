@@ -2317,17 +2317,15 @@ function renderCollection(section, items) {
     runSubmissionCleanup(section, items);
 
     // Group by week (only show active by default, newest first)
-    const active = items.filter(i => i.state !== 'archived' && i.state !== 'deleted');
+    const active = items.filter(i => i.state !== 'archived');
     const archived = items.filter(i => i.state === 'archived');
-    const deleted = items.filter(i => i.state === 'deleted');
 
     const tabs = [
       { label: `Active (${active.length}/200)`, val: 'active' },
       { label: `Archived (${archived.length})`, val: 'archived' },
-      { label: `Deleted (${deleted.length})`, val: 'deleted' }
     ];
     const currentTab = APP.submissionTab || 'active';
-    const tabItems = {active, archived, deleted}[currentTab] || active;
+    const tabItems = {active, archived}[currentTab] || active;
 
     html += `<div class="submission-tabs">`;
     tabs.forEach(t => {
@@ -2357,7 +2355,7 @@ function renderCollection(section, items) {
           try {
             const name = item.name || 'Anonymous';
             const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', {day:'numeric',month:'short',year:'numeric'}) : '—';
-            const stateBadge = `<span class="submission-state-badge ${item.state}">${item.state === 'archived' ? '📦' : item.state === 'deleted' ? '❌' : '✓'} ${item.state}</span>`;
+            const stateBadge = `<span class="submission-state-badge ${item.state}">${item.state === 'archived' ? '📦' : '✓'} ${item.state}</span>`;
             html += `<div class="submission-item" onclick="openSubmissionModal('${esc(JSON.stringify(item).replace(/'/g, "\\'"))}','${section}',${actualIdx})" style="cursor:pointer;">
               <div class="submission-info">
                 <h4>${esc(name)}</h4>
@@ -2367,8 +2365,6 @@ function renderCollection(section, items) {
               <div class="submission-actions">
                 ${item.state === 'active'
                   ? `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); toggleSubmissionState('${section}',${actualIdx},'archived')">Archive</button>`
-                  : item.state === 'archived'
-                  ? `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); toggleSubmissionState('${section}',${actualIdx},'active')">Restore</button>`
                   : `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); toggleSubmissionState('${section}',${actualIdx},'active')">Restore</button>`}
                 <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openSubmissionModal('${esc(JSON.stringify(item).replace(/'/g, "\\'"))}','${section}',${actualIdx})">View</button>
               </div>
@@ -2500,9 +2496,6 @@ function runSubmissionCleanup(section, items) {
       if (item.state === 'archived' && item.archived_at) {
         const archivedAt = new Date(item.archived_at).getTime();
         if (now - archivedAt > 30 * 24 * 60 * 60 * 1000) return false; // Delete if > 30 days
-      } else if (item.state === 'deleted' && item.deleted_at) {
-        const deletedAt = new Date(item.deleted_at).getTime();
-        if (now - deletedAt > 14 * 24 * 60 * 60 * 1000) return false; // Delete if > 14 days
       }
     } catch (e) {
       // Skip items with invalid dates
@@ -2535,11 +2528,10 @@ async function toggleSubmissionState(section, idx, newState) {
         oldest.archived_at = new Date().toISOString();
       }
     }
-  } else if (newState === 'active' && (item.state === 'archived' || item.state === 'deleted')) {
+  } else if (newState === 'active' && item.state === 'archived') {
     item.state = 'active';
     item.last_touched_at = new Date().toISOString();
     delete item.archived_at;
-    delete item.deleted_at;
   }
 
   const ok = await saveCollection(section, items);
