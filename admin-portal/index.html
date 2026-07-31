@@ -2538,6 +2538,8 @@ async function toggleSubmissionState(section, idx, newState) {
   } else if (newState === 'active' && (item.state === 'archived' || item.state === 'deleted')) {
     item.state = 'active';
     item.last_touched_at = new Date().toISOString();
+    delete item.archived_at;
+    delete item.deleted_at;
   }
 
   const ok = await saveCollection(section, items);
@@ -3437,8 +3439,11 @@ function openSubmissionModal(itemJson, section, idx) {
       closeSubmissionModal();
     }
   };
-  document.getElementById('modal-archive-btn').onclick = () => {
-    toggleSubmissionState(section, idx, item.state === 'active' ? 'archived' : 'active');
+  const archiveBtn = document.getElementById('modal-archive-btn');
+  const isActive = item.state === 'active';
+  archiveBtn.textContent = isActive ? 'Archive' : 'Restore';
+  archiveBtn.onclick = () => {
+    toggleSubmissionState(section, idx, isActive ? 'archived' : 'active');
     closeSubmissionModal();
   };
 
