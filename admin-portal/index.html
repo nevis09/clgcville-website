@@ -2518,7 +2518,7 @@ function runSubmissionCleanup(section, items) {
   localStorage.setItem(`submission_cleanup_${section}`, now.toString());
 }
 
-function toggleSubmissionState(section, idx, newState) {
+async function toggleSubmissionState(section, idx, newState) {
   const items = APP.collectionCache[section];
   if (!items || !items[idx]) return;
 
@@ -2540,8 +2540,19 @@ function toggleSubmissionState(section, idx, newState) {
     item.last_touched_at = new Date().toISOString();
   }
 
-  saveCollection(section, items);
-  renderCollection(section, items);
+  const ok = await saveCollection(section, items);
+  if (ok) renderCollection(section, items);
+}
+
+// Persist a submission collection (prayer_requests / testimonies) back to KV
+async function saveCollection(section, items) {
+  try {
+    await apiPut(section, items);
+    return true;
+  } catch (err) {
+    toast('❌ ' + err.message, 'error');
+    return false;
+  }
 }
 
 
@@ -2790,6 +2801,17 @@ async function confirmDelete(section, idx) {
   const item = APP.collectionCache[section][idx];
   const label = COLLECTION_CFG[section].labelFn(item);
   if (!confirm(`Delete "${label}"? This cannot be undone.`)) return;
+
+  if (['prayer_requests', 'testimonies'].includes(section)) {
+    const items = APP.collectionCache[section].filter((_, i) => i !== idx);
+    const ok = await saveCollection(section, items);
+    if (ok) {
+      APP.collectionCache[section] = items;
+      toast('✅ Deleted.', 'success');
+      renderCollection(section, items);
+    }
+    return;
+  }
 
   if (!item._path) {
     toast('❌ Cannot delete — file path unknown.', 'error');

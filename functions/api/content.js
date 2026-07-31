@@ -132,6 +132,18 @@ export async function onRequestPut(context) {
   if (token !== env.ADMIN_TOKEN) return json({ error: 'Unauthorized' }, 401);
   if (!section || !data)         return json({ error: 'Missing section or data' }, 400);
 
+  // Submission collections (prayer requests / testimonies) live in KV, not GitHub
+  if (['prayer_requests', 'testimonies'].includes(section)) {
+    const kv = env.SUBMISSIONS;
+    if (!kv) return json({ error: 'KV binding SUBMISSIONS not available' }, 502);
+    try {
+      await kv.put(section, JSON.stringify(data));
+      return json({ success: true });
+    } catch (err) {
+      return json({ error: err.message || 'KV write failed' }, 502);
+    }
+  }
+
   // Resolve file path
   let filePath;
   if (SINGLE[section]) {
