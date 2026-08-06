@@ -2,5 +2,8 @@
   "url": "/assets/images/gallery/holding-bible-up.webp",
   "alt": "Hand holding a Bible up high",
   "category": "worship",
-  "date": "2026-07-28"
+  "visibility": "private",
+  "date": "2026-07-28",
+  "x_pos": "50",
+  "y_pos": "50"
 }
