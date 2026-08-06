@@ -2,5 +2,8 @@
   "url": "/assets/images/gallery/bible-read.avif",
   "alt": "Person reading the Bible",
   "category": "worship",
-  "date": "2026-07-28"
+  "visibility": "private",
+  "date": "2026-07-28",
+  "x_pos": "50",
+  "y_pos": "50"
 }
