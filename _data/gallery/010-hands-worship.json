@@ -2,5 +2,8 @@
   "url": "https://images.unsplash.com/photo-1627676569762-ea59379ed3b3?auto=format&fit=crop&w=900&h=700&q=75",
   "alt": "Crowd of people raising their hands in worship",
   "category": "worship",
-  "date": "2026-07-28"
+  "visibility": "private",
+  "date": "2026-07-28",
+  "x_pos": "50",
+  "y_pos": "50"
 }
