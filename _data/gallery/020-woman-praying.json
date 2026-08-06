@@ -2,5 +2,8 @@
   "url": "/assets/images/gallery/woman-praying.avif",
   "alt": "Woman praying",
   "category": "community",
-  "date": "2026-07-28"
+  "visibility": "private",
+  "date": "2026-07-28",
+  "x_pos": "50",
+  "y_pos": "50"
 }
