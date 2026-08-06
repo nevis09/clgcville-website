@@ -2749,7 +2749,7 @@ function buildCollectionForm(section, item) {
   }
   html += `<div class="form-actions">
     <button class="btn btn-green" id="modal-save-btn"
-      onclick="saveCollectionItem('${section}', ${JSON.stringify(existingPath)})">
+      onclick="saveCollectionItem('${section}', ${esc(JSON.stringify(existingPath))})">
       💾 ${isEdit ? 'Update' : 'Add'}
     </button>
     <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
