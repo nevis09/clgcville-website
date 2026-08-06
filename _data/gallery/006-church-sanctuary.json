@@ -2,5 +2,8 @@
   "url": "https://images.unsplash.com/photo-1635058157308-e41b28950e55?auto=format&fit=crop&w=900&h=700&q=75",
   "alt": "Empty church sanctuary with pews and a bright window",
   "category": "events",
-  "date": "2026-07-28"
+  "visibility": "private",
+  "date": "2026-07-28",
+  "x_pos": "50",
+  "y_pos": "50"
 }
