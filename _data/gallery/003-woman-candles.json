@@ -2,5 +2,8 @@
   "url": "https://images.unsplash.com/photo-1757494763126-ac90dcd22f71?auto=format&fit=crop&w=900&h=700&q=75",
   "alt": "Woman lighting candles inside a dimly lit church",
   "category": "events",
-  "date": "2026-07-28"
+  "visibility": "private",
+  "date": "2026-07-28",
+  "x_pos": "50",
+  "y_pos": "50"
 }
