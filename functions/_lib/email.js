@@ -4,21 +4,23 @@
  * Required env var (Cloudflare Pages → Settings → Environment Variables):
  *   RESEND_API_KEY   — API key from your Resend account
  * Optional:
- *   RESEND_FROM_EMAIL — verified sender address (defaults to Resend's
- *                        sandbox address, which works with no domain setup)
+ *   RESEND_FROM_EMAIL — override the sender address below
  *
- * NOTE: Resend's sandbox sender (onboarding@resend.dev) can only deliver to
- * the email address on the Resend account itself. Sending to third-party
- * addresses (e.g. confirmation emails to a form submitter) requires a
- * verified custom domain — set RESEND_FROM_EMAIL to an address on that
- * domain once verified.
+ * The default sender is noreply@clgcville.org, which requires clgcville.org
+ * to be a verified sending domain in Resend (Domains → Add Domain → add the
+ * DNS records it gives you). Until that verification is complete, sends
+ * will fail — set RESEND_FROM_EMAIL to Resend's sandbox address
+ * ("Church Of The Living God <onboarding@resend.dev>") as a temporary
+ * fallback if you need email working before verification finishes. Note
+ * the sandbox sender can only deliver to the Resend account's own email,
+ * so submitter confirmations need the verified domain regardless.
  *
  * All failures are swallowed and logged — a broken/missing email config
  * must never block a save or a public form submission.
  */
 
 const NOTIFY_TO = 'clgcville2014@gmail.com';
-const DEFAULT_FROM = 'Church Of The Living God <onboarding@resend.dev>';
+const DEFAULT_FROM = 'Church Of The Living God <noreply@clgcville.org>';
 const SITE_URL = 'https://clgcville.org';
 
 export async function sendNotificationEmail(env, { to, subject, heading, intro, rows = [], ctaLabel, ctaUrl }) {
