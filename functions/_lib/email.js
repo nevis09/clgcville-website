@@ -7,6 +7,12 @@
  *   RESEND_FROM_EMAIL — verified sender address (defaults to Resend's
  *                        sandbox address, which works with no domain setup)
  *
+ * NOTE: Resend's sandbox sender (onboarding@resend.dev) can only deliver to
+ * the email address on the Resend account itself. Sending to third-party
+ * addresses (e.g. confirmation emails to a form submitter) requires a
+ * verified custom domain — set RESEND_FROM_EMAIL to an address on that
+ * domain once verified.
+ *
  * All failures are swallowed and logged — a broken/missing email config
  * must never block a save or a public form submission.
  */
@@ -15,7 +21,7 @@ const NOTIFY_TO = 'clgcville2014@gmail.com';
 const DEFAULT_FROM = 'Church Of The Living God <onboarding@resend.dev>';
 const SITE_URL = 'https://clgcville.org';
 
-export async function sendNotificationEmail(env, { subject, heading, intro, rows = [], ctaLabel, ctaUrl }) {
+export async function sendNotificationEmail(env, { to, subject, heading, intro, rows = [], ctaLabel, ctaUrl }) {
   if (!env.RESEND_API_KEY) {
     console.warn('RESEND_API_KEY not set — skipping email notification');
     return;
@@ -30,7 +36,7 @@ export async function sendNotificationEmail(env, { subject, heading, intro, rows
       },
       body: JSON.stringify({
         from: env.RESEND_FROM_EMAIL || DEFAULT_FROM,
-        to: [NOTIFY_TO],
+        to: [to || NOTIFY_TO],
         subject,
         html: buildEmailHtml({ heading, intro, rows, ctaLabel, ctaUrl }),
       }),

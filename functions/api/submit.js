@@ -42,6 +42,9 @@ export async function onRequest(context) {
     }
 
     context.waitUntil(notifyNewSubmission(context.env, collection, submission));
+    if (submission.email) {
+      context.waitUntil(sendSubmitterConfirmation(context.env, collection, submission));
+    }
 
     // Return success regardless of KV status
     return new Response(JSON.stringify({
@@ -80,5 +83,31 @@ function notifyNewSubmission(env, collection, submission) {
     rows,
     ctaLabel: 'View in Admin Portal',
     ctaUrl: `https://clgcville.org/admin-portal/`,
+  });
+}
+
+function sendSubmitterConfirmation(env, collection, submission) {
+  const isPrayer = collection === 'prayer_requests';
+  const name = submission.name?.trim() || 'Friend';
+  const bodyText = (isPrayer ? submission.request : submission.testimony) || '';
+  const snippet = bodyText.length > 300 ? bodyText.slice(0, 300) + '…' : bodyText;
+
+  const rows = [
+    { label: isPrayer ? 'Your Request' : 'Your Testimony', value: snippet || '—' },
+  ];
+  if (isPrayer && submission.pray_for?.length) {
+    rows.push({ label: 'Categories', value: submission.pray_for.join(', ') });
+  }
+
+  return sendNotificationEmail(env, {
+    to: submission.email,
+    subject: isPrayer ? 'We Received Your Prayer Request' : 'Thank You for Sharing Your Testimony',
+    heading: isPrayer ? 'Your Prayer Request Was Received' : 'Your Testimony Was Received',
+    intro: isPrayer
+      ? `Thank you, ${name}. Your request has been received in confidence, and our prayer team will be in agreement with you.`
+      : `Thank you, ${name}! We're so grateful you shared what God has done in your life. Our team will follow up with you personally.`,
+    rows,
+    ctaLabel: 'Visit Our Website',
+    ctaUrl: 'https://clgcville.org',
   });
 }
