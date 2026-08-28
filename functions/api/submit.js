@@ -1,3 +1,5 @@
+import { sendNotificationEmail } from '../_lib/email.js';
+
 export async function onRequest(context) {
   if (context.request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
@@ -39,6 +41,8 @@ export async function onRequest(context) {
       console.error('KV error:', kvErr.message);
     }
 
+    context.waitUntil(notifyNewSubmission(context.env, collection, submission));
+
     // Return success regardless of KV status
     return new Response(JSON.stringify({
       success: true,
@@ -53,4 +57,28 @@ export async function onRequest(context) {
     console.error('API error:', err);
     return new Response(JSON.stringify({ error: 'Failed to process submission' }), { status: 500 });
   }
+}
+
+function notifyNewSubmission(env, collection, submission) {
+  const isPrayer = collection === 'prayer_requests';
+  const name = submission.name?.trim() || 'Anonymous';
+  const bodyText = (isPrayer ? submission.request : submission.testimony) || '';
+  const snippet = bodyText.length > 220 ? bodyText.slice(0, 220) + '…' : bodyText;
+
+  const rows = [
+    { label: 'From', value: name },
+  ];
+  if (submission.email) rows.push({ label: 'Email', value: submission.email });
+  if (submission.phone) rows.push({ label: 'Phone', value: submission.phone });
+  if (isPrayer && submission.pray_for?.length) rows.push({ label: 'Categories', value: submission.pray_for.join(', ') });
+  rows.push({ label: isPrayer ? 'Request' : 'Testimony', value: snippet || '—' });
+
+  return sendNotificationEmail(env, {
+    subject: isPrayer ? `New Prayer Request from ${name}` : `New Testimony from ${name}`,
+    heading: isPrayer ? 'New Prayer Request' : 'New Testimony',
+    intro: `${name} just submitted ${isPrayer ? 'a prayer request' : 'a testimony'} on the website.`,
+    rows,
+    ctaLabel: 'View in Admin Portal',
+    ctaUrl: `https://clgcville.org/admin-portal/`,
+  });
 }

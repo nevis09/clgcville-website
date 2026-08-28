@@ -11,8 +11,20 @@
  *   GITHUB_TOKEN  — Fine-grained PAT with Contents read+write on this repo
  */
 
+import { sendNotificationEmail } from '../_lib/email.js';
+
 const REPO   = 'nevis09/clgcville-website';
 const BRANCH = 'main';
+
+const SECTION_TITLES = {
+  settings: 'Site Settings', home: 'Home Page', pastor: 'Pastor',
+  sermons: 'Sermons', events: 'Events', announcements: 'Announcements', gallery: 'Gallery',
+  prayer_requests: 'Prayer Requests', testimonies: 'Testimonies',
+  mission: 'Mission', history: 'Church History', salvation: 'Salvation', sbs: 'School of Bible Studies',
+  contact_page: 'Contact Page', live: 'Live Stream', giving: 'Online Giving',
+  service_times: 'Service Times', calendar: 'Calendar Page', prayer_request: 'Prayer Request Form Page',
+  gallery_page: 'Gallery Page', sermons_page: 'Sermons Page',
+};
 
 // Single-file sections
 const SINGLE = {
@@ -138,6 +150,7 @@ export async function onRequestPut(context) {
     if (!kv) return json({ error: 'KV binding SUBMISSIONS not available' }, 502);
     try {
       await kv.put(section, JSON.stringify(data));
+      context.waitUntil(notifyContentSaved(env, section));
       return json({ success: true });
     } catch (err) {
       return json({ error: err.message || 'KV write failed' }, 502);
@@ -182,6 +195,7 @@ export async function onRequestPut(context) {
     return json({ error: err.message || 'GitHub API error' }, 502);
   }
 
+  context.waitUntil(notifyContentSaved(env, section, fileName));
   return json({ success: true });
 }
 
@@ -217,6 +231,7 @@ export async function onRequestDelete(context) {
     return json({ error: err.message || 'GitHub delete failed' }, 502);
   }
 
+  context.waitUntil(notifyContentDeleted(env, filePath));
   return json({ success: true });
 }
 
@@ -250,4 +265,38 @@ function ghFetch(env, path, opts = {}) {
 function b64(str) {
   // Encode UTF-8 string to base64 (Workers runtime compatible)
   return btoa(unescape(encodeURIComponent(str)));
+}
+
+function notifyContentSaved(env, section, fileName) {
+  const title = SECTION_TITLES[section] || section;
+  return sendNotificationEmail(env, {
+    subject: `Content Updated: ${title}`,
+    heading: 'Content Updated',
+    intro: fileName
+      ? `An item was saved in the ${title} collection.`
+      : `The ${title} section was updated.`,
+    rows: [
+      { label: 'Section', value: title },
+      ...(fileName ? [{ label: 'Item', value: fileName }] : []),
+    ],
+    ctaLabel: 'View in Admin Portal',
+    ctaUrl: 'https://clgcville.org/admin-portal/',
+  });
+}
+
+function notifyContentDeleted(env, filePath) {
+  const folder = filePath.split('/').slice(0, -1).join('/');
+  const section = Object.keys(FOLDERS).find(s => FOLDERS[s] === folder) || folder;
+  const title = SECTION_TITLES[section] || section;
+  return sendNotificationEmail(env, {
+    subject: `Content Deleted: ${title}`,
+    heading: 'Content Deleted',
+    intro: `An item was permanently deleted from ${title}.`,
+    rows: [
+      { label: 'Section', value: title },
+      { label: 'File', value: filePath },
+    ],
+    ctaLabel: 'View in Admin Portal',
+    ctaUrl: 'https://clgcville.org/admin-portal/',
+  });
 }
