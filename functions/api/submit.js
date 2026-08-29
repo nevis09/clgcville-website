@@ -101,6 +101,7 @@ function sendSubmitterConfirmation(env, collection, submission) {
 
   return sendNotificationEmail(env, {
     to: submission.email,
+    eyebrow: 'Thank You',
     subject: isPrayer ? 'We Received Your Prayer Request' : 'Thank You for Sharing Your Testimony',
     heading: isPrayer ? 'Your Prayer Request Was Received' : 'Your Testimony Was Received',
     intro: isPrayer

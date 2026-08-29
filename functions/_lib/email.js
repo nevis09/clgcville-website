@@ -23,7 +23,7 @@ const NOTIFY_TO = 'clgcville2014@gmail.com';
 const DEFAULT_FROM = 'Church Of The Living God <noreply@clgcville.org>';
 const SITE_URL = 'https://clgcville.org';
 
-export async function sendNotificationEmail(env, { to, subject, heading, intro, rows = [], ctaLabel, ctaUrl }) {
+export async function sendNotificationEmail(env, { to, subject, heading, intro, rows = [], ctaLabel, ctaUrl, eyebrow }) {
   if (!env.RESEND_API_KEY) {
     console.warn('RESEND_API_KEY not set — skipping email notification');
     return;
@@ -40,7 +40,7 @@ export async function sendNotificationEmail(env, { to, subject, heading, intro, 
         from: env.RESEND_FROM_EMAIL || DEFAULT_FROM,
         to: [to || NOTIFY_TO],
         subject,
-        html: buildEmailHtml({ heading, intro, rows, ctaLabel, ctaUrl }),
+        html: buildEmailHtml({ heading, intro, rows, ctaLabel, ctaUrl, eyebrow }),
       }),
     });
 
@@ -59,7 +59,7 @@ function esc(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function buildEmailHtml({ heading, intro, rows, ctaLabel, ctaUrl }) {
+function buildEmailHtml({ heading, intro, rows, ctaLabel, ctaUrl, eyebrow }) {
   const rowsHtml = rows.map(({ label, value }) => `
     <tr>
       <td style="padding:10px 0;border-bottom:1px solid #E9E4D8;font:13px/1.4 'Inter',Helvetica,Arial,sans-serif;color:#8A8375;width:150px;vertical-align:top;">${esc(label)}</td>
@@ -104,7 +104,7 @@ function buildEmailHtml({ heading, intro, rows, ctaLabel, ctaUrl }) {
                   </td>
                   <td style="padding-left:12px;">
                     <div style="font:700 15px/1.2 'Playfair Display',Georgia,serif;color:#FFFFFF;">Church Of The Living God</div>
-                    <div style="font:600 10.5px/1.4 'Inter',Helvetica,Arial,sans-serif;color:#C9A84C;letter-spacing:0.8px;text-transform:uppercase;margin-top:2px;">Admin Notification</div>
+                    <div style="font:600 10.5px/1.4 'Inter',Helvetica,Arial,sans-serif;color:#C9A84C;letter-spacing:0.8px;text-transform:uppercase;margin-top:2px;">${esc(eyebrow || 'Admin Notification')}</div>
                   </td>
                 </tr>
               </table>
